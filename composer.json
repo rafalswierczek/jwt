@@ -1,8 +1,11 @@
 {
     "name": "rafalswierczek/jwt",
+    "description": "Simple JWT authenticator with Symfony Security",
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
-            "name": "rafal",
+            "name": "Rafał Świerczek",
             "email": "swierczekraf@gmail.com"
         }
     ],
