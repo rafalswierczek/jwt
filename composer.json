@@ -1,0 +1,22 @@
+{
+    "name": "rafalswierczek/jwt",
+    "authors": [
+        {
+            "name": "rafal",
+            "email": "swierczekraf@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/security-bundle": "^6.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "rafalswierczek\\jwt\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "rafalswierczek\\jwt\\tests\\": "tests/"
+        }
+    }
+}
