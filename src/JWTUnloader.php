@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt;
+namespace rafalswierczek\JWT;
 
 final class JWTUnloader
 {

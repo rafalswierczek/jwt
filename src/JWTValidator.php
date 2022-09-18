@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt;
+namespace rafalswierczek\JWT;
 
-use rafalswierczek\jwt\Algorithm\AlgorithmFQCN;
+use rafalswierczek\JWT\Algorithm\AlgorithmFQCN;
 
 final class JWTValidator implements JWTValidatorInterface
 {

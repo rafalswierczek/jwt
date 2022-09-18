@@ -14,12 +14,12 @@
     },
     "autoload": {
         "psr-4": {
-            "rafalswierczek\\jwt\\": "src/"
+            "rafalswierczek\\JWT\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "rafalswierczek\\jwt\\tests\\": "tests/"
+            "rafalswierczek\\JWT\\Test\\": "tests/"
         }
     }
 }

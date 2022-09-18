@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt\Algorithm;
+namespace rafalswierczek\JWT\Algorithm;
 
 final class HS256 implements AlgorithmInterface
 {

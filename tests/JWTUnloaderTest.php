@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt\tests;
+namespace rafalswierczek\JWT\Test;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-use rafalswierczek\jwt\JWTUnloader;
+use rafalswierczek\JWT\JWTUnloader;
 
 class JWTUnloaderTest
 {

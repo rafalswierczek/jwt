@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt\tests;
+namespace rafalswierczek\JWT\Test;
 
-use rafalswierczek\jwt\JWTUserInterface;
+use rafalswierczek\JWT\JWTUserInterface;
 
 class JWTUser implements JWTUserInterface
 {
     private string $id;
-
-    private string $email;
 
     private string $jwt;
 

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt;
+namespace rafalswierczek\JWT;
 
-use rafalswierczek\jwt\Algorithm\AlgorithmFQCN;
+use rafalswierczek\JWT\Algorithm\AlgorithmFQCN;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;

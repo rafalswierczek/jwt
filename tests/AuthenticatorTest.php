@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt\tests;
+namespace rafalswierczek\JWT\Test;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-use rafalswierczek\jwt\Algorithm\AlgorithmFQCN;
-use rafalswierczek\jwt\{Authenticator, JWTValidator};
+use rafalswierczek\JWT\{Authenticator, JWTValidator};
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 

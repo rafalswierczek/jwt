@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace rafalswierczek\jwt;
+namespace rafalswierczek\JWT;
 
-use rafalswierczek\jwt\Algorithm\{AlgorithmFQCN, AlgorithmInterface};
+use rafalswierczek\JWT\Algorithm\{AlgorithmFQCN, AlgorithmInterface};
 
 final class JWTIssuer
 {
