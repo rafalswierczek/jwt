@@ -1,9 +1,12 @@
-# JWTAuthenticator
-## Simple JWT authenticator with Symfony Security
-
-Symfony is used only in `Authenticator.php`. Create your own Authenticator so it's 100% framework independent.
+# Simple JWT authenticator with Symfony Security
 
 **This app is not production ready.**
+
+## Installation:
+
+> composer require rafalswierczek/jwt
+
+### Symfony is used only in `Authenticator.php`. Create your own Authenticator so it's 100% framework independent.
 
 ## Usage
 
