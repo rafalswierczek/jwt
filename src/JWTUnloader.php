@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT;
 
+use rafalswierczek\JWT\Exception\InvalidJWTSyntaxException;
+
 final class JWTUnloader
 {
-    public function __construct(private string $jwt)
-    {}
+    /**
+     * @throws InvalidJWTSyntaxException 
+     */
+    public function __construct(private string $jwt, JWTValidatorInterface $jwtValidator)
+    {
+        $jwtValidator->validateSyntax($jwt);
+    }
 
     public function getHeader(): array
     {

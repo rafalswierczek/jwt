@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace rafalswierczek\JWT;
 
 use rafalswierczek\JWT\Algorithm\AlgorithmFQCN;
+use rafalswierczek\JWT\Exception\InvalidJWTException;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -37,8 +38,10 @@ final class Authenticator implements AuthenticatorInterface
 
         $jwtSecret = getenv('JWT_SECRET') ?: throw new \RuntimeException('Cannot find JWT_SECRET in .env file');
 
-        if(!$this->jwtValidator->isValid($jwt, $jwtSecret, AlgorithmFQCN::HS256)) {
-            throw new AuthenticationException('JWT is not valid');
+        try {
+            $this->jwtValidator->validate($jwt, $jwtSecret, AlgorithmFQCN::HS256);
+        } catch (InvalidJWTException) {
+            throw new AuthenticationException(sprintf('Could not authenticate due to invalid JWT: %s', $jwt));
         }
 
         return new SelfValidatingPassport(new UserBadge($jwt));

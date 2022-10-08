@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace rafalswierczek\JWT;
 
 use rafalswierczek\JWT\Algorithm\AlgorithmFQCN;
+use rafalswierczek\JWT\Exception\{InvalidJWTSyntaxException, InvalidJWTException};
 
 final class JWTValidator implements JWTValidatorInterface
 {
-    public function isValid(string $jwt, string $jwtSecret, AlgorithmFQCN $algorithmFQCN): bool
+    public function validate(string $jwt, string $jwtSecret, AlgorithmFQCN $algorithmFQCN): void
     {
+        $this->validateSyntax($jwt);
+
         $jwtBase64Parts = explode('.', $jwt);
-        
-        if (!$this->hasValidSyntax($jwtBase64Parts)) {
-            return false;
-        }
         
         $jsonHeader = base64_decode($jwtBase64Parts[0]);
         
@@ -34,24 +33,22 @@ final class JWTValidator implements JWTValidatorInterface
         $signature = $algorithm->hash();
         
         if ($signatureToCheck !== $signature) {
-            return false;
+            throw new InvalidJWTException($jwt);
         }
-        
-        return true;
     }
     
-    private function hasValidSyntax(array $jwtBase64Parts): bool
+    public function validateSyntax(string $jwt): void
     {
+        $jwtBase64Parts = explode('.', $jwt);
+
         if (count($jwtBase64Parts) !== 3) {
-            return false;
+            throw new InvalidJWTSyntaxException($jwt);
         }
 
         foreach ($jwtBase64Parts as $jwtBase64Part) {
-            if (empty($jwtBase64Part)) {
-                return false;
+            if (empty($jwtBase64Part) || empty(base64_decode($jwtBase64Part))) {
+                throw new InvalidJWTSyntaxException($jwt);
             }
         }
-        
-        return true;
     }
 }
