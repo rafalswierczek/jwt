@@ -39,16 +39,16 @@ $jwtToken = $jwtIssuer->getJWT();
 
 $jwtValidator = new JWTValidator();
 
-// get it from request header: Authorization: Bearer T-O-K-E-N:
-$jwtToken = '';
+// get it from request header: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFp...:
+$jwtToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC50ZXN0IiwiaWF0IjoxNjYyODgwNDI3LCJzdWIiOiJhLWItMyJ9.ODJmZTBmNzkyNjEzNDc5NjkyOGQ5MjZmZmM4ZTU3MGM0Zjg2NTRmOGNhN2NhOGU4NzE0Y2M5ZWYwYTYzOTFmYQ==';
 
 // $jwtSecret makes us sure that $jwtToken is valid when it's verified using $algorithm:
-$isValid = $jwtValidator->isValid($jwtToken, $jwtSecret, $algorithm); 
+$jwtValidator->validate($jwtToken, $jwtSecret, $algorithm); 
 
 #################################################
 
 // use JWTUnloader to get useful data from token:
-$jwtUnloader = new JWTUnloader($jwtToken);
+$jwtUnloader = new JWTUnloader($jwtToken, new JWTValidator());
 
 $payload = $jwtUnloader->getPayload();
 
