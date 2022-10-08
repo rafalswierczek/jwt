@@ -12,6 +12,9 @@
     "require": {
         "symfony/security-bundle": "^6.1"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
     "autoload": {
         "psr-4": {
             "rafalswierczek\\JWT\\": "src/"
@@ -19,7 +22,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "rafalswierczek\\JWT\\Test\\": "tests/"
+            "rafalswierczek\\JWT\\Test\\": "tests/src"
         }
     }
 }
