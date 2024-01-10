@@ -1,5 +1,7 @@
 # Simple JWS authentication codebase
 
+[![Build](https://github.com/rafalswierczek/jwt/actions/workflows/php.yml/badge.svg)](https://github.com/rafalswierczek/jwt/actions/workflows/php.yml)
+
 #### Take total control over JWS authentication with help of this repository.
 
 ## Installation:
