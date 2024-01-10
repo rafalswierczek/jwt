@@ -1,6 +1,6 @@
 {
     "name": "rafalswierczek/jwt",
-    "description": "Simple JWT authenticator with Symfony Security",
+    "description": "Simple JWT codebase",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -9,11 +9,9 @@
             "email": "swierczekraf@gmail.com"
         }
     ],
-    "require": {
-        "symfony/security-bundle": "^6.1"
-    },
     "require-dev": {
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.10"
     },
     "autoload": {
         "psr-4": {

@@ -1,57 +1,58 @@
-# Simple JWT authenticator with Symfony Security
+# Simple JWS authentication codebase
 
-**This app is not production ready.**
+#### Take total control over JWS authentication with help of this repository.
 
 ## Installation:
 
 > composer require rafalswierczek/jwt
 
-### Symfony is used only in `Authenticator.php`. Create your own Authenticator so it's 100% framework independent.
-
 ## Usage
 
-```PHP
-$jwtSecret = '123'; // from .env
-$algorithm = AlgorithmFQCN::HS256; // use HS256 or create your own that implements JWTUserInterface
+- Keep your JWS secret very safely and share it between applications to let one JWS be used to authenticate with multiple applications
+- In authentication server:
+    - Create your own token endpoint which will check user credentials and return generated JWS in successful response
+    - Create your own settings for JWS header and payload
+    - Create instances of `JWSIssuerInterface`, `JWSHeader` and `JWSPayload` and use it in token endpoint to get JWS
 
-#################################################
+    ```php
+    $serializer = new JWSSerializer(new JWSHeaderSerializer(), new JWSPayloadSerializer());
+    $algorithmProvider = new AlgorithmProvider($serializer);
+    $issuer = new JWSIssuer($algorithmProvider, $serializer);
 
-// ISSUER: front-end should request this to get JWT, keep in mind that $jwtUser should be taken from database:
+    $header = $yourHeaderFactory::create();
+    $payload = $yourPayloadFactory::create();
+    $secret = $yourSecretProvider::get();
 
-// use your user that implements JWTUserInterface:
-$jwtUser = (new JWTUser())->setId('a-b-3');
+    $compactJws = $issuer->getCompactJWS($header, $payload, $secret);
 
-// set whatever is useful to you in payload:
-$jsonPayload = '{"email": "test@test.test"}';
+    return new Response($compactJws);
+    ```
+- In all endpoints for each application with REST API:
+    - Create your own authenticator and use your instance of `JWSVerifierInterface` there to verify JWS taken from request header
 
-$jwtIssuer = new JWTIssuer($jwtSecret, $jwtUser, $algorithm);
+    ```php
+    $serializer = new JWSSerializer(new JWSHeaderSerializer(), new JWSPayloadSerializer());
+    $algorithmProvider = new AlgorithmProvider($serializer);
+    $verifier = new JWSVerifier($algorithmProvider, $serializer);
 
-// add your own payload before generating the token:
-$jwtIssuer->addJsonToPayload($jsonPayload);
+    $authorizationHeader = $request->headers->get('Authorization');
+    $jws = explode(' ', $authorizationHeader)[1]; // make sure you know it's compact or json JWS from your client-server negotiation, if compact:
 
-// issuer endpoint response body should have this token:
-$jwtToken = $jwtIssuer->getJWT();
+    $jws = $this->serializer->compactDeserializeJWS($compactJws);
+    $secret = $yourSecretProvider::get();
+    
+    try {
+        $this->verifier->verify($jws, $secret);
+    } catch (CompromisedSignatureException) {
+        return new JsonResponse(['message' => 'Invalid JWS'], 401);
+    }
 
-#################################################
+    // your HTTP processing after authentication was successful...
 
-// API RESOURCES: front-end requests should hit this code for every API endpoint that need to be protected by JWT:
-// you need your own authenticator or rafalswierczek\jwt\Authenticator that uses code below:
+    // get user from JWS:
+    $payload = $jws->getPayload();
+    $data = $payload->getData(); // any data added to payload
+    $user = $yourUserDeserializer->deserialize($data['user'] ?? throw new YourException('Missing user in JWS'));
 
-$jwtValidator = new JWTValidator();
-
-// get it from request header: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFp...:
-$jwtToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC50ZXN0IiwiaWF0IjoxNjYyODgwNDI3LCJzdWIiOiJhLWItMyJ9.ODJmZTBmNzkyNjEzNDc5NjkyOGQ5MjZmZmM4ZTU3MGM0Zjg2NTRmOGNhN2NhOGU4NzE0Y2M5ZWYwYTYzOTFmYQ==';
-
-// $jwtSecret makes us sure that $jwtToken is valid when it's verified using $algorithm:
-$jwtValidator->validate($jwtToken, $jwtSecret, $algorithm); 
-
-#################################################
-
-// use JWTUnloader to get useful data from token:
-$jwtUnloader = new JWTUnloader($jwtToken, new JWTValidator());
-
-$payload = $jwtUnloader->getPayload();
-
-// get an email or whatever you set up before JWTIssuer was used:
-$email = $payload['email'];
-```
+    // use available serializers and implement your own to manipulate JWS data
+    ```
