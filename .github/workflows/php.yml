@@ -1,4 +1,4 @@
-name: Testing rafalswierczek/jwt
+name: Build
 
 on:
   push:
