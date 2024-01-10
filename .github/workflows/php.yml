@@ -42,3 +42,6 @@ jobs:
 
       - name: Test with phpunit
         run: vendor/bin/phpunit
+
+      - name: Run level 8 phpstan
+        run: vendor/bin/phpstan analyse -l 8 src tests
