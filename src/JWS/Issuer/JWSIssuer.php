@@ -30,9 +30,7 @@ final class JWSIssuer implements JWSIssuerInterface
      */
     public function getCompactJWS(JWSHeader $header, JWSPayload $payload, string $secret): string
     {
-        $signature = $this->getSignature($header, $payload, $secret);
-
-        $jws = new JWS($header, $payload, $signature);
+        $jws = $this->getJWS($header, $payload, $secret);
 
         return $this->serializer->compactSerializeJWS($jws);
     }
@@ -44,11 +42,19 @@ final class JWSIssuer implements JWSIssuerInterface
      */
     public function getJsonJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): string
     {
-        $signature = $this->getSignature($header, $payload, $secret);
-
-        $jws = new JWS($header, $payload, $signature, $unprotectedHeader);
+        $jws = $this->getJWS($header, $payload, $secret, $unprotectedHeader);
 
         return $this->serializer->jsonSerializeJws($jws);
+    }
+
+    /**
+     * @throws MissingAlgorithmImplementationException 
+     */
+    public function getJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): JWS
+    {
+        $signature = $this->getSignature($header, $payload, $secret);
+
+        return new JWS($header, $payload, $signature, $unprotectedHeader);
     }
 
     /**
