@@ -21,11 +21,11 @@ final class JWSHeaderSerializer implements JWSHeaderSerializerInterface
             'alg' => $header->getAlgorithm()->name,
         ];
 
-        return json_encode($headerArray) ?: throw new InvalidJWSHeaderException("JWS header JSON serialization failed due to binary data");
+        return json_encode($headerArray) ?: throw new InvalidJWSHeaderException('JWS header JSON serialization failed due to binary data');
     }
 
     /**
-     * @throws InvalidJWSHeaderException 
+     * @throws InvalidJWSHeaderException
      */
     public function jsonDeserialize(string $header): JWSHeader
     {

@@ -48,7 +48,7 @@ final class JWSIssuer implements JWSIssuerInterface
     }
 
     /**
-     * @throws MissingAlgorithmImplementationException 
+     * @throws MissingAlgorithmImplementationException
      */
     public function getJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): JWS
     {

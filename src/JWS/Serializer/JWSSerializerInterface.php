@@ -19,7 +19,7 @@ interface JWSSerializerInterface
 {
     /**
      * @throws InvalidJWSHeaderException
-     */    
+     */
     public function base64EncodeHeader(JWSHeader $header): string;
 
     /**
@@ -55,12 +55,12 @@ interface JWSSerializerInterface
 
     /**
      * @return string base64UrlEncodedHeader.base64UrlEncodedPayload.base64UrlEncodedSignature
-     * 
+     *
      * @throws InvalidJWSHeaderException
      * @throws InvalidJWSPayloadException
      */
     public function compactSerializeJws(JWS $jws): string;
-    
+
     /**
      * @throws InvalidJWSCompactException
      * @throws InvalidBase64InputException

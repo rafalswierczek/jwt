@@ -40,7 +40,8 @@ class JWSIssuerTest extends TestCase
         $secret = JWSModel::getSecret();
         $signature = $algorithmInstance->createSignature($header, $payload, $secret);
 
-        $expectedCompactJws = sprintf('%s.%s.%s',
+        $expectedCompactJws = sprintf(
+            '%s.%s.%s',
             $this->serializer->base64EncodeHeader($header),
             $this->serializer->base64EncodePayload($payload),
             $this->serializer->base64EncodeSignature($signature),

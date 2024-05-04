@@ -21,10 +21,10 @@ final class JWSVerifier implements JWSVerifierInterface
     }
 
     /**
-     * @throws MissingAlgorithmImplementationException 
-     * @throws InvalidJWSHeaderException 
-     * @throws InvalidJWSPayloadException 
-     * @throws CompromisedSignatureException 
+     * @throws MissingAlgorithmImplementationException
+     * @throws InvalidJWSHeaderException
+     * @throws InvalidJWSPayloadException
+     * @throws CompromisedSignatureException
      */
     public function verify(JWS $jws, string $secret): void
     {
@@ -35,7 +35,7 @@ final class JWSVerifier implements JWSVerifierInterface
         if ((string) $jws->getSignature() !== (string) $computedSignature) {
             $compactJws = $this->serializer->compactSerializeJws($jws);
 
-            throw new CompromisedSignatureException('Signature of following JWS is compromised: '.$compactJws);
+            throw new CompromisedSignatureException('Signature of following JWS is compromised: ' . $compactJws);
         }
     }
 }

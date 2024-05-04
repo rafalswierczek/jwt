@@ -21,7 +21,7 @@ final class AlgorithmProvider implements AlgorithmProviderInterface
     }
 
     /**
-     * @throws MissingAlgorithmImplementationException 
+     * @throws MissingAlgorithmImplementationException
      */
     public function getAlgorithm(Algorithm $algorithm): AlgorithmInterface
     {
@@ -31,6 +31,6 @@ final class AlgorithmProvider implements AlgorithmProviderInterface
             }
         }
 
-        throw new MissingAlgorithmImplementationException('Missing algorithm implementation: '.$algorithm->value);
+        throw new MissingAlgorithmImplementationException('Missing algorithm implementation: ' . $algorithm->value);
     }
 }

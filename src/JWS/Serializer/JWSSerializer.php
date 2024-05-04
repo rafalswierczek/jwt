@@ -13,8 +13,6 @@ use rafalswierczek\JWT\JWS\Model\JWS;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
 use rafalswierczek\JWT\JWS\Model\JWSSignature;
 use rafalswierczek\JWT\JWS\Model\JWSUnprotectedHeader;
-use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializerInterface;
-use rafalswierczek\JWT\JWS\Serializer\JWSPayloadSerializerInterface;
 use rafalswierczek\JWT\Shared\Base64;
 use rafalswierczek\JWT\Shared\Exception\InvalidBase64InputException;
 
@@ -28,7 +26,7 @@ final class JWSSerializer implements JWSSerializerInterface
 
     /**
      * @throws InvalidJWSHeaderException
-     */    
+     */
     public function base64EncodeHeader(JWSHeader $header): string
     {
         return Base64::UrlEncode($this->jwsHeaderSerializer->jsonSerialize($header));
@@ -88,7 +86,7 @@ final class JWSSerializer implements JWSSerializerInterface
 
     /**
      * @return string base64UrlEncodedHeader.base64UrlEncodedPayload.base64UrlEncodedSignature
-     * 
+     *
      * @throws InvalidJWSHeaderException
      * @throws InvalidJWSPayloadException
      */
@@ -100,7 +98,7 @@ final class JWSSerializer implements JWSSerializerInterface
 
         return sprintf('%s.%s.%s', $base64UrlHeader, $base64UrlPayload, $base64UrlSignature);
     }
-    
+
     /**
      * @throws InvalidJWSCompactException
      * @throws InvalidBase64InputException
@@ -112,7 +110,7 @@ final class JWSSerializer implements JWSSerializerInterface
         $base64UrlParts = explode('.', $compactJws);
 
         if (3 !== count($base64UrlParts)) {
-            throw new InvalidJWSCompactException('Compact serialized JWS must contain 3 members. Invalid JWS: '.$compactJws);
+            throw new InvalidJWSCompactException('Compact serialized JWS must contain 3 members. Invalid JWS: ' . $compactJws);
         }
 
         $header = $this->base64DecodeHeader($base64UrlParts[0]);
@@ -153,15 +151,15 @@ final class JWSSerializer implements JWSSerializerInterface
         $arrayJws = json_decode($jsonJws, true);
 
         if (false === isset($arrayJws['protected'])) {
-            throw new InvalidJWSJsonException('There is a missing "protected" json key in JWS: '.$jsonJws);
+            throw new InvalidJWSJsonException('There is a missing "protected" json key in JWS: ' . $jsonJws);
         }
 
         if (false === isset($arrayJws['payload'])) {
-            throw new InvalidJWSJsonException('There is a missing "payload" json key in JWS: '.$jsonJws);
+            throw new InvalidJWSJsonException('There is a missing "payload" json key in JWS: ' . $jsonJws);
         }
 
         if (false === isset($arrayJws['signature'])) {
-            throw new InvalidJWSJsonException('There is a missing "signature" json key in JWS: '.$jsonJws);
+            throw new InvalidJWSJsonException('There is a missing "signature" json key in JWS: ' . $jsonJws);
         }
 
         $header = $this->base64DecodeHeader($arrayJws['protected']);

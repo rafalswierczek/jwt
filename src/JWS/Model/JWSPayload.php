@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Model;
 
-use DateTimeImmutable;
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSPayloadException;
 
 class JWSPayload
 {
     /**
-     * @param null|array<int, string> $audience 
-     * @param null|array<string, mixed> $data 
+     * @param array<int, string>|null $audience
+     * @param array<string, mixed>|null $data
      */
     public function __construct(
         private string $id,
@@ -63,7 +62,7 @@ class JWSPayload
     }
 
     /**
-     * @return null|array<int, string>
+     * @return array<int, string>|null
      */
     public function getAudience(): ?array
     {
@@ -71,7 +70,7 @@ class JWSPayload
     }
 
     /**
-     * @return null|array<string, mixed> 
+     * @return array<string, mixed>|null
      */
     public function getData(): ?array
     {

@@ -52,7 +52,7 @@ class JWSSerializerTest extends TestCase
         $payload = JWSModel::getPayload();
 
         $base64UrlPayload = $this->serializer->base64EncodePayload($payload);
-        
+
         $expectedBase64UrlPayload = Base64::UrlEncode((string) json_encode([
             'jti' => $payload->getId(),
             'iss' => $payload->getIssuer(),
@@ -135,7 +135,8 @@ class JWSSerializerTest extends TestCase
 
         $compactJws = $this->serializer->compactSerializeJws($jws);
 
-        $expectedCompactJws = sprintf('%s.%s.%s',
+        $expectedCompactJws = sprintf(
+            '%s.%s.%s',
             $this->serializer->base64EncodeHeader($jws->getHeader()),
             $this->serializer->base64EncodePayload($jws->getPayload()),
             $this->serializer->base64EncodeSignature($jws->getSignature()),

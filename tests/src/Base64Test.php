@@ -6,22 +6,46 @@ namespace rafalswierczek\JWT\Test;
 
 use PHPUnit\Framework\TestCase;
 use rafalswierczek\JWT\Shared\Base64;
+use rafalswierczek\JWT\Shared\Exception\InvalidBase64InputException;
 
 class Base64Test extends TestCase
 {
-    public function testUrlEncode(): void
+    public function testEncodeUrlBinaryToGetUrlSafeEncodedString(): void
     {
-        $this->assertSame($this->getBase64UrlEncodedPayload(), Base64::urlEncode($this->getPayload()));
+        $binaryThatShouldProduceUrlUnsafeString = $this->getBinary();
+
+        $encoded = base64_encode($binaryThatShouldProduceUrlUnsafeString);
+        $urlEncoded = Base64::urlEncode($binaryThatShouldProduceUrlUnsafeString);
+
+        self::assertSame($this->getBase64EncodedUrlUnsafeString(), $encoded);
+        self::assertSame($this->getBase64UrlEncodedUrlSafeString(), $urlEncoded);
     }
 
-    public function testUrlDecodeAgainstDecode(): void
+    public function testDecodeUrlSafeString(): void
     {
-        $this->assertSame($this->getPayload(), Base64::urlDecode($this->getBase64UrlEncodedPayload()));
+        $base64UrlEncoded = $this->getBase64UrlEncodedUrlSafeString();
+
+        $decoded = base64_decode($base64UrlEncoded);
+        $urlDecoded = Base64::urlDecode($base64UrlEncoded);
+
+        self::assertNotSame($decoded, $urlDecoded);
+        self::assertSame($this->getBinary(), $urlDecoded);
+    }
+
+    public function testDecodeUrlUnsafeString(): void
+    {
+        $base64Encoded = $this->getBase64EncodedUrlUnsafeString();
+
+        $decoded = base64_decode($base64Encoded);
+        $urlDecoded = Base64::urlDecode($base64Encoded);
+
+        self::assertSame($decoded, $urlDecoded);
+        self::assertSame($this->getBinary(), $urlDecoded);
     }
 
     public function testUrlDecodeForInvalidData(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(InvalidBase64InputException::class);
 
         Base64::urlDecode('a');
     }
@@ -35,20 +59,18 @@ class Base64Test extends TestCase
         $this->assertSame($binary, Base64::urlDecode($base64));
     }
 
-    private function getBase64UrlEncodedPayload(): string
+    private function getBase64EncodedUrlUnsafeString(): string
     {
-        return 'ew0KICAgICAgICAgICAgInN1YiI6ICIxMjM0NTY3ODkwIiwNCiAgICAgICAgICAgICJpYXQiOiAxNTE2MjM5MDIyLA0KICAgICAgICAgICAgInVzZXIiOiB7DQogICAgICAgICAgICAgICAgIm5hbWUiOiAiSm9obiBEb2UiLA0KICAgICAgICAgICAgICAgICJoYXNoIjogIu-_vV_vv70iDQogICAgICAgICAgICB9DQogICAgICAgIH0';
+        return 'dmFsdWV3d++/vXZhbHVldw==';
     }
 
-    private function getPayload(): string
+    private function getBase64UrlEncodedUrlSafeString(): string
     {
-        return '{
-            "sub": "1234567890",
-            "iat": 1516239022,
-            "user": {
-                "name": "John Doe",
-                "hash": "�_�"
-            }
-        }';
+        return 'dmFsdWV3d--_vXZhbHVldw';
+    }
+
+    private function getBinary(): string
+    {
+        return 'valueww�valuew';
     }
 }

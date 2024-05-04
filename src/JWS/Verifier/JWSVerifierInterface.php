@@ -11,7 +11,7 @@ use rafalswierczek\JWT\JWS\Model\JWS;
 interface JWSVerifierInterface
 {
     /**
-     * @throws MissingAlgorithmImplementationException 
+     * @throws MissingAlgorithmImplementationException
      * @throws CompromisedSignatureException
      */
     public function verify(JWS $jws, string $secret): void;

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Enum\Header;
 
-Enum Type: string
+enum Type: string
 {
     case JWS = 'JWS';
 
-    public static function tryFromName(string $name): self|null
+    public static function tryFromName(string $name): ?self
     {
         foreach (self::cases() as $case) {
-            if($name === $case->name) {
+            if ($name === $case->name) {
                 return $case;
             }
         }

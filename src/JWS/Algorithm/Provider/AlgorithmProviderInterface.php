@@ -11,7 +11,7 @@ use rafalswierczek\JWT\JWS\Exception\MissingAlgorithmImplementationException;
 interface AlgorithmProviderInterface
 {
     /**
-     * @throws MissingAlgorithmImplementationException 
+     * @throws MissingAlgorithmImplementationException
      */
     public function getAlgorithm(Algorithm $algorithm): AlgorithmInterface;
 }

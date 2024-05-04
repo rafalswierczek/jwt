@@ -33,7 +33,8 @@ class JWSPayloadSerializerTest extends TestCase
 
         $jsonPayload = $this->serializer->jsonSerialize($payload);
 
-        $expectedJson = sprintf('{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $expectedJson = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             $payload->getId(),
             $payload->getIssuer(),
             $payload->getSubject(),
@@ -53,7 +54,8 @@ class JWSPayloadSerializerTest extends TestCase
         $expirationTime = new \DateTimeImmutable('+30 minutes');
         $notBefore = new \DateTimeImmutable('+5 minutes');
 
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             'ex123',
@@ -92,7 +94,8 @@ class JWSPayloadSerializerTest extends TestCase
         $issuedAt = new \DateTimeImmutable();
         $expirationTime = new \DateTimeImmutable('+30 minutes');
 
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"aud":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"aud":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             'ex123',
@@ -124,7 +127,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadMissingId(): void
     {
-        $jsonPayload = sprintf('{"iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'issuer',
             'ex123',
             (new \DateTimeImmutable())->getTimestamp(),
@@ -142,7 +146,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadExpirationTimeBeforeIssuedAt(): void
     {
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             'ex123',
@@ -161,7 +166,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadExpirationTimeBeforeNotBefore(): void
     {
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             'ex123',
@@ -180,7 +186,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadMissingIssuer(): void
     {
-        $jsonPayload = sprintf('{"jti":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'ex123',
             (new \DateTimeImmutable())->getTimestamp(),
@@ -198,7 +205,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadMissingSubject(): void
     {
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             (new \DateTimeImmutable())->getTimestamp(),
@@ -216,7 +224,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadMissingExpirationTime(): void
     {
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             'ex123',
@@ -234,7 +243,8 @@ class JWSPayloadSerializerTest extends TestCase
 
     public function testDeserializePayloadMissingIssuedAt(): void
     {
-        $jsonPayload = sprintf('{"jti":"%s","iss":"%s","sub":"%s","exp":%s,"nbf":%s,"aud":%s,"data":%s}',
+        $jsonPayload = sprintf(
+            '{"jti":"%s","iss":"%s","sub":"%s","exp":%s,"nbf":%s,"aud":%s,"data":%s}',
             'ZWFkMDA5OGQtMTc0My00YjhiLWI2NzItYzNkYzc1NWNjZGEz',
             'issuer',
             'ex123',

@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Serializer;
 
-use DateTimeImmutable;
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSPayloadException;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
 
 final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
 {
     /**
-     * @throws InvalidJWSPayloadException 
+     * @throws InvalidJWSPayloadException
      */
     public function jsonSerialize(JWSPayload $payload): string
     {
@@ -35,11 +34,11 @@ final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
             $payloadArray['data'] = $payload->getData();
         }
 
-        return json_encode($payloadArray) ?: throw new InvalidJWSPayloadException("JWS payload JSON serialization failed due to binary data");
+        return json_encode($payloadArray) ?: throw new InvalidJWSPayloadException('JWS payload JSON serialization failed due to binary data');
     }
 
     /**
-     * @throws InvalidJWSPayloadException 
+     * @throws InvalidJWSPayloadException
      */
     public function jsonDeserialize(string $payload): JWSPayload
     {
