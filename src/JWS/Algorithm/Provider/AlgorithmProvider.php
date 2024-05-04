@@ -23,7 +23,7 @@ final class AlgorithmProvider implements AlgorithmProviderInterface
     /**
      * @throws MissingAlgorithmImplementationException 
      */
-    public function getAlgorithmInstance(Algorithm $algorithm): AlgorithmInterface
+    public function getAlgorithm(Algorithm $algorithm): AlgorithmInterface
     {
         foreach (self::IMPLEMENTATION_MAP as $fqcn => $definedAlgorithm) {
             if ($algorithm === $definedAlgorithm) {

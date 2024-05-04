@@ -24,7 +24,7 @@ class AlgorithmProviderTest extends TestCase
 
     public function testGetJsonJWSUsingHS256(): void
     {
-        $algorithmInstance = $this->algorithmProvider->getAlgorithmInstance(Algorithm::HS256);
+        $algorithmInstance = $this->algorithmProvider->getAlgorithm(Algorithm::HS256);
 
         $this->assertInstanceOf(HS256::class, $algorithmInstance);
     }

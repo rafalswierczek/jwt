@@ -62,7 +62,7 @@ final class JWSIssuer implements JWSIssuerInterface
      */
     private function getSignature(JWSHeader $header, JWSPayload $payload, string $secret): JWSSignature
     {
-        $algorithmInstance = $this->algorithmProvider->getAlgorithmInstance($header->getAlgorithm());
+        $algorithmInstance = $this->algorithmProvider->getAlgorithm($header->getAlgorithm());
 
         return $algorithmInstance->createSignature($header, $payload, $secret);
     }
