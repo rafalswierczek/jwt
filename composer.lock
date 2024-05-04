@@ -4,8 +4,49 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d9c6147f0b8c501779b5944b47117094",
-    "packages": [],
+    "content-hash": "f1ff6abc8be55d185537477426d65ecc",
+    "packages": [
+        {
+            "name": "rafalswierczek/uuid4",
+            "version": "1.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rafalswierczek/uuid4.git",
+                "reference": "586dbe4ff306d12f9111e05953706b5332069cd1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rafalswierczek/uuid4/zipball/586dbe4ff306d12f9111e05953706b5332069cd1",
+                "reference": "586dbe4ff306d12f9111e05953706b5332069cd1",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "rafalswierczek\\Uuid4\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rafał Świerczek",
+                    "email": "swierczekraf@gmail.com"
+                }
+            ],
+            "description": "Super simple UUID v4 generator in PHP",
+            "support": {
+                "issues": "https://github.com/rafalswierczek/uuid4/issues",
+                "source": "https://github.com/rafalswierczek/uuid4/tree/1.3.3"
+            },
+            "time": "2023-02-15T02:24:31+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "composer/pcre",
