@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Serializer;
 
-use rafalswierczek\JWT\JWS\Enum\Header\Algorithm;
-use rafalswierczek\JWT\JWS\Enum\Header\Type;
+use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
+use rafalswierczek\JWT\JWS\Enum\Header\TokenType;
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSHeaderException;
 use rafalswierczek\JWT\JWS\Model\JWSHeader;
 
@@ -17,8 +17,8 @@ final class JWSHeaderSerializer implements JWSHeaderSerializerInterface
     public function jsonSerialize(JWSHeader $header): string
     {
         $headerArray = [
-            'typ' => $header->getType()->name,
-            'alg' => $header->getAlgorithm()->name,
+            'typ' => $header->getTokenType()->name,
+            'alg' => $header->getAlgorithmType()->name,
         ];
 
         return json_encode($headerArray) ?: throw new InvalidJWSHeaderException('JWS header JSON serialization failed due to binary data');
@@ -35,8 +35,8 @@ final class JWSHeaderSerializer implements JWSHeaderSerializerInterface
         $headerType = $headerArray['typ'] ?? throw new InvalidJWSHeaderException("Cannot find 'typ' key in JSON header");
         $headerAlgorithm = $headerArray['alg'] ?? throw new InvalidJWSHeaderException("Cannot find 'alg' key in JSON header");
 
-        $type = Type::tryFromName($headerType) ?? throw new InvalidJWSHeaderException("Invalid header type: $headerType");
-        $algorithm = Algorithm::tryFromName($headerAlgorithm) ?? throw new InvalidJWSHeaderException("Invalid header algorithm: $headerAlgorithm");
+        $type = TokenType::tryFromName($headerType) ?? throw new InvalidJWSHeaderException("Invalid header type: $headerType");
+        $algorithm = AlgorithmType::tryFromName($headerAlgorithm) ?? throw new InvalidJWSHeaderException("Invalid header algorithm: $headerAlgorithm");
 
         return new JWSHeader($type, $algorithm);
     }

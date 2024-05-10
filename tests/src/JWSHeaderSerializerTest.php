@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace rafalswierczek\JWT\Test;
 
 use PHPUnit\Framework\TestCase;
-use rafalswierczek\JWT\JWS\Enum\Header\Algorithm;
-use rafalswierczek\JWT\JWS\Enum\Header\Type;
+use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
+use rafalswierczek\JWT\JWS\Enum\Header\TokenType;
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSHeaderException;
 use rafalswierczek\JWT\JWS\Model\JWSHeader;
 use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializer;
@@ -22,30 +22,30 @@ class JWSHeaderSerializerTest extends TestCase
 
     public function testSerializeHeader(): void
     {
-        $header = new JWSHeader(Type::JWS, Algorithm::HS256);
+        $header = new JWSHeader(TokenType::JWS, AlgorithmType::HS256);
 
         $jsonHeader = $this->serializer->jsonSerialize($header);
 
-        $expectedJson = sprintf('{"typ":"%s","alg":"%s"}', Type::JWS->name, Algorithm::HS256->name);
+        $expectedJson = sprintf('{"typ":"%s","alg":"%s"}', TokenType::JWS->name, AlgorithmType::HS256->name);
 
         $this->assertSame($expectedJson, $jsonHeader);
     }
 
     public function testDeserializeHeader(): void
     {
-        $jsonHeader = sprintf('{"typ":"%s","alg":"%s"}', Type::JWS->name, Algorithm::HS256->name);
+        $jsonHeader = sprintf('{"typ":"%s","alg":"%s"}', TokenType::JWS->name, AlgorithmType::HS256->name);
 
         $header = $this->serializer->jsonDeserialize($jsonHeader);
 
-        $expectedHeader = new JWSHeader(Type::JWS, Algorithm::HS256);
+        $expectedHeader = new JWSHeader(TokenType::JWS, AlgorithmType::HS256);
 
-        $this->assertSame($expectedHeader->getType(), $header->getType());
-        $this->assertSame($expectedHeader->getAlgorithm(), $header->getAlgorithm());
+        $this->assertSame($expectedHeader->getTokenType(), $header->getTokenType());
+        $this->assertSame($expectedHeader->getAlgorithmType(), $header->getAlgorithmType());
     }
 
     public function testDeserializeHeaderInvalidType(): void
     {
-        $jsonHeader = sprintf('{"typ":"x","alg":"%s"}', Algorithm::HS256->name);
+        $jsonHeader = sprintf('{"typ":"x","alg":"%s"}', AlgorithmType::HS256->name);
 
         $this->expectException(InvalidJWSHeaderException::class);
         $this->expectExceptionMessage('Invalid header type: x');
@@ -55,7 +55,7 @@ class JWSHeaderSerializerTest extends TestCase
 
     public function testDeserializeHeaderInvalidAlgorithm(): void
     {
-        $jsonHeader = sprintf('{"typ":"%s","alg":"x"}', Type::JWS->name);
+        $jsonHeader = sprintf('{"typ":"%s","alg":"x"}', TokenType::JWS->name);
 
         $this->expectException(InvalidJWSHeaderException::class);
         $this->expectExceptionMessage('Invalid header algorithm: x');
@@ -65,7 +65,7 @@ class JWSHeaderSerializerTest extends TestCase
 
     public function testDeserializeHeaderMissingTypKey(): void
     {
-        $jsonHeader = sprintf('{"alg":"%s"}', Algorithm::HS256->name);
+        $jsonHeader = sprintf('{"alg":"%s"}', AlgorithmType::HS256->name);
 
         $this->expectException(InvalidJWSHeaderException::class);
         $this->expectExceptionMessage("Cannot find 'typ' key in JSON header");
@@ -75,7 +75,7 @@ class JWSHeaderSerializerTest extends TestCase
 
     public function testDeserializeHeaderMissingAlgKey(): void
     {
-        $jsonHeader = sprintf('{"typ":"%s"}', Type::JWS->name);
+        $jsonHeader = sprintf('{"typ":"%s"}', TokenType::JWS->name);
 
         $this->expectException(InvalidJWSHeaderException::class);
         $this->expectExceptionMessage("Cannot find 'alg' key in JSON header");

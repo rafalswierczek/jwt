@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWE\Enum\Header;
 
-enum Algorithm: string
+enum TokenType: string
 {
-    case XSALSA20 = 'XSALSA20';
+    case JWE_SODIUM = 'JWE-SODIUM';
 }

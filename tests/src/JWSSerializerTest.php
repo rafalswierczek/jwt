@@ -28,8 +28,8 @@ class JWSSerializerTest extends TestCase
         $base64UrlHeader = $this->serializer->base64EncodeHeader($header);
 
         $expectedBase64UrlHeader = Base64::UrlEncode((string) json_encode([
-            'typ' => $header->getType()->name,
-            'alg' => $header->getAlgorithm()->name,
+            'typ' => $header->getTokenType()->name,
+            'alg' => $header->getAlgorithmType()->name,
         ]));
 
         $this->assertSame($expectedBase64UrlHeader, $base64UrlHeader);
@@ -43,8 +43,8 @@ class JWSSerializerTest extends TestCase
 
         $header = $this->serializer->base64DecodeHeader($base64UrlHeader);
 
-        $this->assertSame($expectedHeader->getType(), $header->getType());
-        $this->assertSame($expectedHeader->getAlgorithm(), $header->getAlgorithm());
+        $this->assertSame($expectedHeader->getTokenType(), $header->getTokenType());
+        $this->assertSame($expectedHeader->getAlgorithmType(), $header->getAlgorithmType());
     }
 
     public function testBase64EncodePayload(): void
@@ -153,8 +153,8 @@ class JWSSerializerTest extends TestCase
 
         $jws = $this->serializer->compactDeserializeJWS($compactJws);
 
-        $this->assertSame($expectedJws->getHeader()->getType()->value, $jws->getHeader()->getType()->value);
-        $this->assertSame($expectedJws->getHeader()->getAlgorithm()->value, $jws->getHeader()->getAlgorithm()->value);
+        $this->assertSame($expectedJws->getHeader()->getTokenType()->value, $jws->getHeader()->getTokenType()->value);
+        $this->assertSame($expectedJws->getHeader()->getAlgorithmType()->value, $jws->getHeader()->getAlgorithmType()->value);
 
         $this->assertSame($expectedJws->getPayload()->getId(), $jws->getPayload()->getId());
         $this->assertSame($expectedJws->getPayload()->getIssuer(), $jws->getPayload()->getIssuer());
@@ -210,8 +210,8 @@ class JWSSerializerTest extends TestCase
 
         $jws = $this->serializer->jsonDeserializeJws($jsonJws);
 
-        $this->assertSame($expectedJws->getHeader()->getType()->value, $jws->getHeader()->getType()->value);
-        $this->assertSame($expectedJws->getHeader()->getAlgorithm()->value, $jws->getHeader()->getAlgorithm()->value);
+        $this->assertSame($expectedJws->getHeader()->getTokenType()->value, $jws->getHeader()->getTokenType()->value);
+        $this->assertSame($expectedJws->getHeader()->getAlgorithmType()->value, $jws->getHeader()->getAlgorithmType()->value);
 
         $this->assertSame($expectedJws->getPayload()->getId(), $jws->getPayload()->getId());
         $this->assertSame($expectedJws->getPayload()->getIssuer(), $jws->getPayload()->getIssuer());
@@ -233,8 +233,8 @@ class JWSSerializerTest extends TestCase
 
         $jws = $this->serializer->jsonDeserializeJws($jsonJws);
 
-        $this->assertSame($expectedJws->getHeader()->getType()->value, $jws->getHeader()->getType()->value);
-        $this->assertSame($expectedJws->getHeader()->getAlgorithm()->value, $jws->getHeader()->getAlgorithm()->value);
+        $this->assertSame($expectedJws->getHeader()->getTokenType()->value, $jws->getHeader()->getTokenType()->value);
+        $this->assertSame($expectedJws->getHeader()->getAlgorithmType()->value, $jws->getHeader()->getAlgorithmType()->value);
 
         $this->assertSame($expectedJws->getPayload()->getId(), $jws->getPayload()->getId());
         $this->assertSame($expectedJws->getPayload()->getIssuer(), $jws->getPayload()->getIssuer());

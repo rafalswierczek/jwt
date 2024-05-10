@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Model;
 
-use rafalswierczek\JWT\JWS\Enum\Header\Algorithm;
-use rafalswierczek\JWT\JWS\Enum\Header\Type;
+use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
+use rafalswierczek\JWT\JWS\Enum\Header\TokenType;
 
 final class JWSHeader
 {
     public function __construct(
-        private Type $type,
-        private Algorithm $algorithm,
+        private TokenType $tokenType,
+        private AlgorithmType $algorithmType,
     ) {
     }
 
-    public function getType(): Type
+    public function getTokenType(): TokenType
     {
-        return $this->type;
+        return $this->tokenType;
     }
 
-    public function getAlgorithm(): Algorithm
+    public function getAlgorithmType(): AlgorithmType
     {
-        return $this->algorithm;
+        return $this->algorithmType;
     }
 }

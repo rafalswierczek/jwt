@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Enum\Header;
 
-enum Algorithm: string
+enum AlgorithmType: string
 {
     case HS256 = 'HMAC using SHA-256';
     case HS384 = 'HMAC using SHA-384';

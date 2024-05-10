@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWE\Model;
 
-use rafalswierczek\JWT\JWE\Enum\Header\Algorithm;
+use rafalswierczek\JWT\JWE\Enum\Header\AlgorithmType;
 use rafalswierczek\JWT\JWE\Enum\Header\ContentType;
-use rafalswierczek\JWT\JWE\Enum\Header\Type;
+use rafalswierczek\JWT\JWE\Enum\Header\TokenType;
 
 final class JWEHeader
 {
     public function __construct(
-        private Type $type,
+        private TokenType $tokenType,
         private ContentType $contentType,
-        private Algorithm $algorithm,
+        private AlgorithmType $algorithmType,
     ) {
     }
 
-    public function getType(): Type
+    public function getType(): TokenType
     {
-        return $this->type;
+        return $this->tokenType;
     }
 
     public function getContentType(): ContentType
@@ -27,8 +27,8 @@ final class JWEHeader
         return $this->contentType;
     }
 
-    public function getAlgorithm(): Algorithm
+    public function getAlgorithm(): AlgorithmType
     {
-        return $this->algorithm;
+        return $this->algorithmType;
     }
 }

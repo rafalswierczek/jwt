@@ -28,9 +28,12 @@ final class JWSVerifier implements JWSVerifierInterface
      */
     public function verify(JWS $jws, string $secret): void
     {
-        $algorithmInstance = $this->algorithmProvider->getAlgorithm($jws->getHeader()->getAlgorithm());
+        $header = $jws->getHeader();
+        $payload = $jws->getPayload();
 
-        $computedSignature = $algorithmInstance->createSignature($jws->getHeader(), $jws->getPayload(), $secret);
+        $algorithmInstance = $this->algorithmProvider->getAlgorithm($header->getAlgorithmType());
+
+        $computedSignature = $algorithmInstance->createSignature($header, $payload, $secret);
 
         if ((string) $jws->getSignature() !== (string) $computedSignature) {
             $compactJws = $this->serializer->compactSerializeJws($jws);

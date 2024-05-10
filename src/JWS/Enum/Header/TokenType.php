@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Enum\Header;
 
-enum Type: string
+enum TokenType: string
 {
     case JWS = 'JWS';
 

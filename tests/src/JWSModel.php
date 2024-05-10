@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\Test;
 
-use rafalswierczek\JWT\JWS\Enum\Header\Algorithm;
-use rafalswierczek\JWT\JWS\Enum\Header\Type;
+use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
+use rafalswierczek\JWT\JWS\Enum\Header\TokenType;
 use rafalswierczek\JWT\JWS\Model\JWSHeader;
 use rafalswierczek\JWT\JWS\Model\JWS;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
@@ -19,9 +19,9 @@ abstract class JWSModel
         return 'secret';
     }
 
-    public static function getHeader(Algorithm $algorithm = Algorithm::HS256): JWSHeader
+    public static function getHeader(AlgorithmType $algorithmType = AlgorithmType::HS256): JWSHeader
     {
-        return new JWSHeader(Type::JWS, $algorithm);
+        return new JWSHeader(TokenType::JWS, $algorithmType);
     }
 
     public static function getPayload(): JWSPayload

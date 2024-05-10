@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWE\Enum\Header;
 
-enum EncryptionAlgorithm: string
+enum AlgorithmType: string
 {
-    case XCP = 'XChaCha20-Poly1305';
+    case XSALSA20 = 'XSALSA20';
 }

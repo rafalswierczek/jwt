@@ -11,6 +11,9 @@ final class JWSPayloadFactory
 {
     public const VALID_MINUTES = 15;
 
+    /**
+     * @param array<mixed>|null $userInfo
+     */
     public static function create(string $userId, ?array $userInfo = null): JWSPayload
     {
         return new JWSPayload(

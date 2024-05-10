@@ -7,7 +7,7 @@ namespace rafalswierczek\JWT\Test;
 use PHPUnit\Framework\TestCase;
 use rafalswierczek\JWT\JWS\Algorithm\HS256;
 use rafalswierczek\JWT\JWS\Algorithm\Provider\AlgorithmProvider;
-use rafalswierczek\JWT\JWS\Enum\Header\Algorithm;
+use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
 use rafalswierczek\JWT\JWS\Issuer\JWSIssuer;
 use rafalswierczek\JWT\JWS\Issuer\JWSIssuerInterface;
 use rafalswierczek\JWT\JWS\Model\JWS;
@@ -35,7 +35,7 @@ class JWSIssuerTest extends TestCase
     public function testGetCompactJWSUsingHS256(): void
     {
         $algorithmInstance = new HS256($this->serializer);
-        $header = JWSModel::getHeader(Algorithm::HS256);
+        $header = JWSModel::getHeader(AlgorithmType::HS256);
         $payload = JWSModel::getPayload();
         $secret = JWSModel::getSecret();
         $signature = $algorithmInstance->createSignature($header, $payload, $secret);
@@ -55,7 +55,7 @@ class JWSIssuerTest extends TestCase
     public function testGetJsonJWSUsingHS256(): void
     {
         $algorithmInstance = new HS256($this->serializer);
-        $header = JWSModel::getHeader(Algorithm::HS256);
+        $header = JWSModel::getHeader(AlgorithmType::HS256);
         $payload = JWSModel::getPayload();
         $secret = JWSModel::getSecret();
         $unprotectedHeader = JWSModel::getUnprotectedHeader();
@@ -76,7 +76,7 @@ class JWSIssuerTest extends TestCase
     public function testGetJWSUsingHS256(): void
     {
         $algorithmInstance = new HS256($this->serializer);
-        $header = JWSModel::getHeader(Algorithm::HS256);
+        $header = JWSModel::getHeader(AlgorithmType::HS256);
         $payload = JWSModel::getPayload();
         $secret = JWSModel::getSecret();
         $signature = $algorithmInstance->createSignature($header, $payload, $secret);
