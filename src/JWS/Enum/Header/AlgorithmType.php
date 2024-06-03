@@ -22,7 +22,7 @@ enum AlgorithmType: string
     public static function tryFromName(string $name): ?self
     {
         foreach (self::cases() as $case) {
-            if ($name === $case->name) {
+            if (strtolower($name) === strtolower($case->name)) {
                 return $case;
             }
         }

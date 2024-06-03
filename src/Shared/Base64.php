@@ -15,6 +15,9 @@ final class Base64
         return rtrim(strtr($base64, '+/', '-_'), '=');
     }
 
+    /**
+     * @throws InvalidBase64InputException
+     */
     public static function urlDecode(string $base64urlEncoded): string
     {
         $base64 = strtr($base64urlEncoded, '-_', '+/');

@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Exception;
 
-class InvalidJWSPayloadException extends \Exception
+class InvalidJWSPayloadException extends \LogicException
 {
 }

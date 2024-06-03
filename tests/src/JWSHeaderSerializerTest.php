@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
 use rafalswierczek\JWT\JWS\Enum\Header\TokenType;
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSHeaderException;
-use rafalswierczek\JWT\JWS\Model\JWSHeader;
 use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializer;
+use rafalswierczek\JWT\Shared\Base64;
 
 class JWSHeaderSerializerTest extends TestCase
 {
@@ -22,9 +22,7 @@ class JWSHeaderSerializerTest extends TestCase
 
     public function testSerializeHeader(): void
     {
-        $header = new JWSHeader(TokenType::JWS, AlgorithmType::HS256);
-
-        $jsonHeader = $this->serializer->jsonSerialize($header);
+        $jsonHeader = $this->serializer->jsonSerialize(JWSModel::getHeader());
 
         $expectedJson = sprintf('{"typ":"%s","alg":"%s"}', TokenType::JWS->name, AlgorithmType::HS256->name);
 
@@ -37,10 +35,10 @@ class JWSHeaderSerializerTest extends TestCase
 
         $header = $this->serializer->jsonDeserialize($jsonHeader);
 
-        $expectedHeader = new JWSHeader(TokenType::JWS, AlgorithmType::HS256);
+        $expectedHeader = JWSModel::getHeader();
 
-        $this->assertSame($expectedHeader->getTokenType(), $header->getTokenType());
-        $this->assertSame($expectedHeader->getAlgorithmType(), $header->getAlgorithmType());
+        $this->assertSame($expectedHeader->tokenType, $header->tokenType);
+        $this->assertSame($expectedHeader->algorithmType, $header->algorithmType);
     }
 
     public function testDeserializeHeaderInvalidType(): void
@@ -91,5 +89,31 @@ class JWSHeaderSerializerTest extends TestCase
         $this->expectExceptionMessage('Invalid header format');
 
         $this->serializer->jsonDeserialize($jsonHeader);
+    }
+
+    public function testBase64Encode(): void
+    {
+        $header = JWSModel::getHeader();
+
+        $base64UrlHeader = $this->serializer->base64Encode($header);
+
+        $expectedBase64UrlHeader = Base64::UrlEncode((string) json_encode([
+            'typ' => $header->tokenType->name,
+            'alg' => $header->algorithmType->name,
+        ]));
+
+        $this->assertSame($expectedBase64UrlHeader, $base64UrlHeader);
+    }
+
+    public function testBase64Decode(): void
+    {
+        $expectedHeader = JWSModel::getHeader();
+
+        $base64UrlHeader = $this->serializer->base64Encode($expectedHeader);
+
+        $header = $this->serializer->base64Decode($base64UrlHeader);
+
+        $this->assertSame($expectedHeader->tokenType, $header->tokenType);
+        $this->assertSame($expectedHeader->algorithmType, $header->algorithmType);
     }
 }

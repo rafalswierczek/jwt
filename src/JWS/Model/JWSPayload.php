@@ -6,21 +6,23 @@ namespace rafalswierczek\JWT\JWS\Model;
 
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSPayloadException;
 
-class JWSPayload
+final readonly class JWSPayload
 {
     /**
-     * @param array<int, string>|null $audience
-     * @param array<string, mixed>|null $data
+     * @param array<string>|null $audience
+     * @param array<mixed>|null $data
+     *
+     * @throws InvalidJWSPayloadException
      */
     public function __construct(
-        private string $id,
-        private string $issuer,
-        private string $subject,
-        private \DateTimeImmutable $issuedAt,
-        private \DateTimeImmutable $expirationTime,
-        private ?\DateTimeImmutable $notBefore = null,
-        private ?array $audience = null,
-        private ?array $data = null,
+        public string $id,
+        public string $issuer,
+        public string $subject,
+        public \DateTimeImmutable $issuedAt,
+        public \DateTimeImmutable $expirationTime,
+        public ?\DateTimeImmutable $notBefore = null,
+        public ?array $audience = null,
+        public ?array $data = null,
     ) {
         if ($this->expirationTime <= $this->issuedAt) {
             throw new InvalidJWSPayloadException(sprintf('Expiration Time must be after Issued At'));
@@ -29,51 +31,5 @@ class JWSPayload
         if (null !== $this->notBefore && ($this->expirationTime <= $this->notBefore)) {
             throw new InvalidJWSPayloadException(sprintf('Expiration Time must be after Not Before'));
         }
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function getIssuer(): string
-    {
-        return $this->issuer;
-    }
-
-    public function getSubject(): string
-    {
-        return $this->subject;
-    }
-
-    public function getIssuedAt(): \DateTimeImmutable
-    {
-        return $this->issuedAt;
-    }
-
-    public function getExpirationTime(): \DateTimeImmutable
-    {
-        return $this->expirationTime;
-    }
-
-    public function getNotBefore(): ?\DateTimeImmutable
-    {
-        return $this->notBefore;
-    }
-
-    /**
-     * @return array<int, string>|null
-     */
-    public function getAudience(): ?array
-    {
-        return $this->audience;
-    }
-
-    /**
-     * @return array<string, mixed>|null
-     */
-    public function getData(): ?array
-    {
-        return $this->data;
     }
 }

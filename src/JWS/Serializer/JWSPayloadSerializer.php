@@ -6,44 +6,43 @@ namespace rafalswierczek\JWT\JWS\Serializer;
 
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSPayloadException;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
+use rafalswierczek\JWT\Shared\Base64;
+use rafalswierczek\JWT\Shared\Exception\InvalidBase64InputException;
 
 final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
 {
-    /**
-     * @throws InvalidJWSPayloadException
-     */
     public function jsonSerialize(JWSPayload $payload): string
     {
         $payloadArray = [
-            'jti' => $payload->getId(),
-            'iss' => $payload->getIssuer(),
-            'sub' => $payload->getSubject(),
-            'iat' => $payload->getIssuedAt()->getTimestamp(),
-            'exp' => $payload->getExpirationTime()->getTimestamp(),
+            'jti' => $payload->id,
+            'iss' => $payload->issuer,
+            'sub' => $payload->subject,
+            'iat' => $payload->issuedAt->getTimestamp(),
+            'exp' => $payload->expirationTime->getTimestamp(),
         ];
 
-        if (null !== $payload->getNotBefore()) {
-            $payloadArray['nbf'] = $payload->getNotBefore()->getTimestamp();
+        if (null !== $payload->notBefore) {
+            $payloadArray['nbf'] = $payload->notBefore->getTimestamp();
         }
 
-        if (!empty($payload->getAudience())) {
-            $payloadArray['aud'] = $payload->getAudience();
+        if (!empty($payload->audience)) {
+            $payloadArray['aud'] = $payload->audience;
         }
 
-        if (!empty($payload->getData())) {
-            $payloadArray['data'] = $payload->getData();
+        if (!empty($payload->data)) {
+            $payloadArray['data'] = $payload->data;
         }
 
-        return json_encode($payloadArray) ?: throw new InvalidJWSPayloadException('JWS payload JSON serialization failed due to binary data');
+        return json_encode($payloadArray) ?: throw new \ValueError('JWS payload JSON serialization failed due to usage of binary data');
     }
 
     /**
      * @throws InvalidJWSPayloadException
      */
-    public function jsonDeserialize(string $payload): JWSPayload
+    public function jsonDeserialize(string $jsonPayload): JWSPayload
     {
         /** @var array<string, mixed> $payloadArray */
-        $payloadArray = json_decode($payload, true) ?: throw new InvalidJWSPayloadException('JSON deserialization failed due to binary data or invalid format');
+        $payloadArray = json_decode($jsonPayload, true) ?? throw new InvalidJWSPayloadException('Invalid payload format');
 
         return new JWSPayload(
             id: $payloadArray['jti'] ?? throw new InvalidJWSPayloadException('Cannot find "jti" in json payload'),
@@ -57,20 +56,40 @@ final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
         );
     }
 
-    /**
-     * @param array<string, string|int> $payloadArray
-     */
-    private function getDateTime(array $payloadArray, string $headerKey): \DateTimeImmutable
+    public function base64Encode(JWSPayload $payload): string
     {
-        if (false === is_int($payloadArray[$headerKey] ?? throw new InvalidJWSPayloadException(sprintf('Cannot find "%s" in json payload', $headerKey)))) {
-            throw new InvalidJWSPayloadException(sprintf('Invalid "%s" value in json payload', $headerKey));
-        }
+        return Base64::UrlEncode($this->jsonSerialize($payload));
+    }
 
-        return (new \DateTimeImmutable())->setTimestamp((int) $payloadArray[$headerKey]);
+    /**
+     * @throws InvalidBase64InputException
+     * @throws InvalidJWSPayloadException
+     */
+    public function base64Decode(string $base64UrlPayload): JWSPayload
+    {
+        return $this->jsonDeserialize(Base64::UrlDecode($base64UrlPayload));
     }
 
     /**
      * @param array<string, string|int> $payloadArray
+     *
+     * @throws InvalidJWSPayloadException
+     */
+    private function getDateTime(array $payloadArray, string $headerKey): \DateTimeImmutable
+    {
+        $payloadTimestamp = $payloadArray[$headerKey] ?? throw new InvalidJWSPayloadException(sprintf('Cannot find "%s" in json payload', $headerKey));
+
+        if (false === is_int($payloadTimestamp)) {
+            throw new InvalidJWSPayloadException(sprintf('Invalid value of "%s" in json payload', $headerKey));
+        }
+
+        return (new \DateTimeImmutable())->setTimestamp((int) $payloadTimestamp);
+    }
+
+    /**
+     * @param array<string, string|int> $payloadArray
+     *
+     * @throws InvalidJWSPayloadException
      */
     private function getDateTimeOptional(array $payloadArray, string $headerKey): ?\DateTimeImmutable
     {
@@ -79,7 +98,7 @@ final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
         }
 
         if (false === is_int($payloadArray[$headerKey])) {
-            throw new InvalidJWSPayloadException(sprintf('Invalid "%s" value in json payload', $headerKey));
+            throw new InvalidJWSPayloadException(sprintf('Invalid value of "%s" in json payload', $headerKey));
         }
 
         return (new \DateTimeImmutable())->setTimestamp($payloadArray[$headerKey]);

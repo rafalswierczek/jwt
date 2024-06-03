@@ -8,7 +8,8 @@ use rafalswierczek\JWT\JWS\Algorithm\AlgorithmInterface;
 use rafalswierczek\JWT\JWS\Algorithm\HS256;
 use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
 use rafalswierczek\JWT\JWS\Exception\MissingAlgorithmImplementationException;
-use rafalswierczek\JWT\JWS\Serializer\JWSSerializerInterface;
+use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializerInterface;
+use rafalswierczek\JWT\JWS\Serializer\JWSPayloadSerializerInterface;
 
 final class AlgorithmProvider implements AlgorithmProviderInterface
 {
@@ -16,8 +17,10 @@ final class AlgorithmProvider implements AlgorithmProviderInterface
         HS256::class => AlgorithmType::HS256,
     ];
 
-    public function __construct(private JWSSerializerInterface $serializer)
-    {
+    public function __construct(
+        private JWSHeaderSerializerInterface $headerSerializer,
+        private JWSPayloadSerializerInterface $payloadSerializer,
+    ) {
     }
 
     /**
@@ -25,9 +28,9 @@ final class AlgorithmProvider implements AlgorithmProviderInterface
      */
     public function getAlgorithm(AlgorithmType $algorithmType): AlgorithmInterface
     {
-        foreach (self::IMPLEMENTATION_MAP as $fqcn => $definedAlgorithm) {
-            if ($algorithmType === $definedAlgorithm) {
-                return new $fqcn($this->serializer);
+        foreach (self::IMPLEMENTATION_MAP as $fqcn => $definedAlgorithmType) {
+            if ($algorithmType === $definedAlgorithmType) {
+                return new $fqcn($this->headerSerializer, $this->payloadSerializer);
             }
         }
 

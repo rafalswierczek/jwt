@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use rafalswierczek\JWT\JWS\Exception\InvalidJWSPayloadException;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
 use rafalswierczek\JWT\JWS\Serializer\JWSPayloadSerializer;
+use rafalswierczek\JWT\Shared\Base64;
 
 class JWSPayloadSerializerTest extends TestCase
 {
@@ -35,14 +36,14 @@ class JWSPayloadSerializerTest extends TestCase
 
         $expectedJson = sprintf(
             '{"jti":"%s","iss":"%s","sub":"%s","iat":%s,"exp":%s,"nbf":%s,"aud":%s,"data":%s}',
-            $payload->getId(),
-            $payload->getIssuer(),
-            $payload->getSubject(),
-            $payload->getIssuedAt()->getTimestamp(),
-            $payload->getExpirationTime()->getTimestamp(),
-            $payload->getNotBefore()?->getTimestamp(),
-            json_encode($payload->getAudience()),
-            json_encode($payload->getData()),
+            $payload->id,
+            $payload->issuer,
+            $payload->subject,
+            $payload->issuedAt->getTimestamp(),
+            $payload->expirationTime->getTimestamp(),
+            $payload->notBefore?->getTimestamp(),
+            json_encode($payload->audience),
+            json_encode($payload->data),
         );
 
         $this->assertSame($expectedJson, $jsonPayload);
@@ -79,14 +80,14 @@ class JWSPayloadSerializerTest extends TestCase
             data: ['user' => ['id' => 'userId', 'externalId' => 'ex123', 'name' => 'user123']],
         );
 
-        $this->assertSame($expectedPayload->getId(), $payload->getId());
-        $this->assertSame($expectedPayload->getIssuer(), $payload->getIssuer());
-        $this->assertSame($expectedPayload->getSubject(), $payload->getSubject());
-        $this->assertSame($expectedPayload->getIssuedAt()->getTimestamp(), $payload->getIssuedAt()->getTimestamp());
-        $this->assertSame($expectedPayload->getExpirationTime()->getTimestamp(), $payload->getExpirationTime()->getTimestamp());
-        $this->assertSame($expectedPayload->getNotBefore()?->getTimestamp(), $payload->getNotBefore()?->getTimestamp());
-        $this->assertSame($expectedPayload->getAudience(), $payload->getAudience());
-        $this->assertSame($expectedPayload->getData(), $payload->getData());
+        $this->assertSame($expectedPayload->id, $payload->id);
+        $this->assertSame($expectedPayload->issuer, $payload->issuer);
+        $this->assertSame($expectedPayload->subject, $payload->subject);
+        $this->assertSame($expectedPayload->issuedAt->getTimestamp(), $payload->issuedAt->getTimestamp());
+        $this->assertSame($expectedPayload->expirationTime->getTimestamp(), $payload->expirationTime->getTimestamp());
+        $this->assertSame($expectedPayload->notBefore?->getTimestamp(), $payload->notBefore?->getTimestamp());
+        $this->assertSame($expectedPayload->audience, $payload->audience);
+        $this->assertSame($expectedPayload->data, $payload->data);
     }
 
     public function testDeserializePayloadPartial(): void
@@ -115,14 +116,14 @@ class JWSPayloadSerializerTest extends TestCase
             audience: ['app1', 'app2'],
         );
 
-        $this->assertSame($expectedPayload->getId(), $payload->getId());
-        $this->assertSame($expectedPayload->getIssuer(), $payload->getIssuer());
-        $this->assertSame($expectedPayload->getSubject(), $payload->getSubject());
-        $this->assertSame($expectedPayload->getIssuedAt()->getTimestamp(), $payload->getIssuedAt()->getTimestamp());
-        $this->assertSame($expectedPayload->getExpirationTime()->getTimestamp(), $payload->getExpirationTime()->getTimestamp());
-        $this->assertNull($payload->getNotBefore());
-        $this->assertSame($expectedPayload->getAudience(), $payload->getAudience());
-        $this->assertNull($payload->getData());
+        $this->assertSame($expectedPayload->id, $payload->id);
+        $this->assertSame($expectedPayload->issuer, $payload->issuer);
+        $this->assertSame($expectedPayload->subject, $payload->subject);
+        $this->assertSame($expectedPayload->issuedAt->getTimestamp(), $payload->issuedAt->getTimestamp());
+        $this->assertSame($expectedPayload->expirationTime->getTimestamp(), $payload->expirationTime->getTimestamp());
+        $this->assertNull($payload->notBefore);
+        $this->assertSame($expectedPayload->audience, $payload->audience);
+        $this->assertNull($payload->data);
     }
 
     public function testDeserializePayloadMissingId(): void
@@ -258,5 +259,43 @@ class JWSPayloadSerializerTest extends TestCase
         $this->expectExceptionMessage('Cannot find "iat" in json payload');
 
         $this->serializer->jsonDeserialize($jsonPayload);
+    }
+
+    public function testBase64EncodePayload(): void
+    {
+        $payload = JWSModel::getPayload();
+
+        $base64UrlPayload = $this->serializer->base64Encode($payload);
+
+        $expectedBase64UrlPayload = Base64::UrlEncode((string) json_encode([
+            'jti' => $payload->id,
+            'iss' => $payload->issuer,
+            'sub' => $payload->subject,
+            'iat' => $payload->issuedAt->getTimestamp(),
+            'exp' => $payload->expirationTime->getTimestamp(),
+            'nbf' => $payload->notBefore?->getTimestamp(),
+            'aud' => $payload->audience,
+            'data' => $payload->data,
+        ]));
+
+        $this->assertSame($expectedBase64UrlPayload, $base64UrlPayload);
+    }
+
+    public function testBase64DecodePayload(): void
+    {
+        $expectedPayload = JWSModel::getPayload();
+
+        $base64UrlPayload = $this->serializer->base64Encode($expectedPayload);
+
+        $payload = $this->serializer->base64Decode($base64UrlPayload);
+
+        $this->assertSame($expectedPayload->id, $payload->id);
+        $this->assertSame($expectedPayload->issuer, $payload->issuer);
+        $this->assertSame($expectedPayload->subject, $payload->subject);
+        $this->assertSame($expectedPayload->issuedAt->getTimestamp(), $payload->issuedAt->getTimestamp());
+        $this->assertSame($expectedPayload->expirationTime->getTimestamp(), $payload->expirationTime->getTimestamp());
+        $this->assertSame($expectedPayload->notBefore?->getTimestamp(), $payload->notBefore?->getTimestamp());
+        $this->assertSame($expectedPayload->audience, $payload->audience);
+        $this->assertSame($expectedPayload->data, $payload->data);
     }
 }

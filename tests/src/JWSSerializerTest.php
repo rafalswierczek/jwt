@@ -4,249 +4,193 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\Test;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use rafalswierczek\JWT\JWS\Exception\InvalidJWSCompactException;
+use rafalswierczek\JWT\JWS\Exception\InvalidJWSJsonException;
 use rafalswierczek\JWT\JWS\Model\JWSUnprotectedHeader;
 use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializer;
 use rafalswierczek\JWT\JWS\Serializer\JWSPayloadSerializer;
 use rafalswierczek\JWT\JWS\Serializer\JWSSerializer;
 use rafalswierczek\JWT\JWS\Serializer\JWSSerializerInterface;
-use rafalswierczek\JWT\Shared\Base64;
+use rafalswierczek\JWT\JWS\Serializer\JWSSignatureSerializer;
+use rafalswierczek\JWT\JWS\Serializer\JWSUnprotectedHeaderSerializer;
 
 class JWSSerializerTest extends TestCase
 {
-    private JWSSerializerInterface $serializer;
+    private JWSSerializerInterface $jwsSerializer;
+    private JWSHeaderSerializer $jwsHeaderSerializer;
+    private JWSPayloadSerializer $jwsPayloadSerializer;
+    private JWSSignatureSerializer $jwsSignatureSerializer;
+    private JWSUnprotectedHeaderSerializer $jwsUnprotectedHeaderSerializer;
 
     protected function setUp(): void
     {
-        $this->serializer = new JWSSerializer(new JWSHeaderSerializer(), new JWSPayloadSerializer());
+        $this->jwsHeaderSerializer = new JWSHeaderSerializer();
+        $this->jwsPayloadSerializer = new JWSPayloadSerializer();
+        $this->jwsSignatureSerializer = new JWSSignatureSerializer();
+        $this->jwsUnprotectedHeaderSerializer = new JWSUnprotectedHeaderSerializer();
+        $this->jwsSerializer = new JWSSerializer($this->jwsHeaderSerializer, $this->jwsPayloadSerializer, $this->jwsSignatureSerializer, $this->jwsUnprotectedHeaderSerializer);
     }
 
-    public function testBase64EncodeHeader(): void
+    public function testCompactSerializeJWS(): void
     {
-        $header = JWSModel::getHeader();
+        $jws = JWSModel::getJWS();
 
-        $base64UrlHeader = $this->serializer->base64EncodeHeader($header);
-
-        $expectedBase64UrlHeader = Base64::UrlEncode((string) json_encode([
-            'typ' => $header->getTokenType()->name,
-            'alg' => $header->getAlgorithmType()->name,
-        ]));
-
-        $this->assertSame($expectedBase64UrlHeader, $base64UrlHeader);
-    }
-
-    public function testBase64DecodeHeader(): void
-    {
-        $expectedHeader = JWSModel::getHeader();
-
-        $base64UrlHeader = $this->serializer->base64EncodeHeader($expectedHeader);
-
-        $header = $this->serializer->base64DecodeHeader($base64UrlHeader);
-
-        $this->assertSame($expectedHeader->getTokenType(), $header->getTokenType());
-        $this->assertSame($expectedHeader->getAlgorithmType(), $header->getAlgorithmType());
-    }
-
-    public function testBase64EncodePayload(): void
-    {
-        $payload = JWSModel::getPayload();
-
-        $base64UrlPayload = $this->serializer->base64EncodePayload($payload);
-
-        $expectedBase64UrlPayload = Base64::UrlEncode((string) json_encode([
-            'jti' => $payload->getId(),
-            'iss' => $payload->getIssuer(),
-            'sub' => $payload->getSubject(),
-            'iat' => $payload->getIssuedAt()->getTimestamp(),
-            'exp' => $payload->getExpirationTime()->getTimestamp(),
-            'nbf' => $payload->getNotBefore()?->getTimestamp(),
-            'aud' => $payload->getAudience(),
-            'data' => $payload->getData(),
-        ]));
-
-        $this->assertSame($expectedBase64UrlPayload, $base64UrlPayload);
-    }
-
-    public function testBase64DecodePayload(): void
-    {
-        $expectedPayload = JWSModel::getPayload();
-
-        $base64UrlPayload = $this->serializer->base64EncodePayload($expectedPayload);
-
-        $payload = $this->serializer->base64DecodePayload($base64UrlPayload);
-
-        $this->assertSame($expectedPayload->getId(), $payload->getId());
-        $this->assertSame($expectedPayload->getIssuer(), $payload->getIssuer());
-        $this->assertSame($expectedPayload->getSubject(), $payload->getSubject());
-        $this->assertSame($expectedPayload->getIssuedAt()->getTimestamp(), $payload->getIssuedAt()->getTimestamp());
-        $this->assertSame($expectedPayload->getExpirationTime()->getTimestamp(), $payload->getExpirationTime()->getTimestamp());
-        $this->assertSame($expectedPayload->getNotBefore()?->getTimestamp(), $payload->getNotBefore()?->getTimestamp());
-        $this->assertSame($expectedPayload->getAudience(), $payload->getAudience());
-        $this->assertSame($expectedPayload->getData(), $payload->getData());
-    }
-
-    public function testBase64EncodeSignature(): void
-    {
-        $signature = JWSModel::getSignature();
-
-        $base64UrlSignature = $this->serializer->base64EncodeSignature($signature);
-
-        $expectedBase64UrlSignature = Base64::UrlEncode((string) $signature);
-
-        $this->assertSame($expectedBase64UrlSignature, $base64UrlSignature);
-    }
-
-    public function testBase64DecodeSignature(): void
-    {
-        $expectedSignature = JWSModel::getSignature();
-
-        $base64UrlSignature = $this->serializer->base64EncodeSignature($expectedSignature);
-
-        $signature = $this->serializer->base64DecodeSignature($base64UrlSignature);
-
-        $this->assertSame((string) $expectedSignature, (string) $signature);
-    }
-
-    public function testBase64EncodeUnprotectedHeader(): void
-    {
-        $header = JWSModel::getUnprotectedHeader();
-
-        $base64UrlUnprotectedHeader = $this->serializer->base64EncodeUnprotectedHeader($header);
-
-        $expectedBase64UrlUnprotectedHeader = Base64::urlEncode((string) json_encode($header->getData()));
-
-        $this->assertSame($expectedBase64UrlUnprotectedHeader, $base64UrlUnprotectedHeader);
-    }
-
-    public function testBase64DecodeUnprotectedHeader(): void
-    {
-        $expectedHeader = JWSModel::getUnprotectedHeader();
-
-        $base64UrlUnprotectedHeader = $this->serializer->base64EncodeUnprotectedHeader($expectedHeader);
-
-        $unprotectedHeader = $this->serializer->base64DecodeUnprotectedHeader($base64UrlUnprotectedHeader);
-
-        $this->assertSame($expectedHeader->getData(), $unprotectedHeader->getData());
-    }
-
-    public function testCompactSerializeJws(): void
-    {
-        $jws = JWSModel::getJws();
-
-        $compactJws = $this->serializer->compactSerializeJws($jws);
-
-        $expectedCompactJws = sprintf(
+        $expectedCompactJWS = sprintf(
             '%s.%s.%s',
-            $this->serializer->base64EncodeHeader($jws->getHeader()),
-            $this->serializer->base64EncodePayload($jws->getPayload()),
-            $this->serializer->base64EncodeSignature($jws->getSignature()),
+            $this->jwsHeaderSerializer->base64Encode($jws->header),
+            $this->jwsPayloadSerializer->base64Encode($jws->payload),
+            $this->jwsSignatureSerializer->base64Encode($jws->signature),
         );
 
-        $this->assertSame($expectedCompactJws, $compactJws);
+        $compactJWS = $this->jwsSerializer->compactSerializeJWS($jws);
+
+        $this->assertSame($expectedCompactJWS, $compactJWS);
     }
 
     public function testCompactDeserializeJWS(): void
     {
-        $expectedJws = JWSModel::getJws();
+        $expectedJWS = JWSModel::getJWS();
 
-        $compactJws = $this->serializer->compactSerializeJws($expectedJws);
+        $compactJWS = $this->jwsSerializer->compactSerializeJWS($expectedJWS);
 
-        $jws = $this->serializer->compactDeserializeJWS($compactJws);
+        $jws = $this->jwsSerializer->compactDeserializeJWS($compactJWS);
 
-        $this->assertSame($expectedJws->getHeader()->getTokenType()->value, $jws->getHeader()->getTokenType()->value);
-        $this->assertSame($expectedJws->getHeader()->getAlgorithmType()->value, $jws->getHeader()->getAlgorithmType()->value);
+        $this->assertSame($expectedJWS->header->tokenType->value, $jws->header->tokenType->value);
+        $this->assertSame($expectedJWS->header->algorithmType->value, $jws->header->algorithmType->value);
 
-        $this->assertSame($expectedJws->getPayload()->getId(), $jws->getPayload()->getId());
-        $this->assertSame($expectedJws->getPayload()->getIssuer(), $jws->getPayload()->getIssuer());
-        $this->assertSame($expectedJws->getPayload()->getSubject(), $jws->getPayload()->getSubject());
-        $this->assertSame($expectedJws->getPayload()->getIssuedAt()->getTimestamp(), $jws->getPayload()->getIssuedAt()->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getExpirationTime()->getTimestamp(), $jws->getPayload()->getExpirationTime()->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getNotBefore()?->getTimestamp(), $jws->getPayload()->getNotBefore()?->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getAudience(), $jws->getPayload()->getAudience());
-        $this->assertSame($expectedJws->getPayload()->getData(), $jws->getPayload()->getData());
+        $this->assertSame($expectedJWS->payload->id, $jws->payload->id);
+        $this->assertSame($expectedJWS->payload->issuer, $jws->payload->issuer);
+        $this->assertSame($expectedJWS->payload->subject, $jws->payload->subject);
+        $this->assertSame($expectedJWS->payload->issuedAt->getTimestamp(), $jws->payload->issuedAt->getTimestamp());
+        $this->assertSame($expectedJWS->payload->expirationTime->getTimestamp(), $jws->payload->expirationTime->getTimestamp());
+        $this->assertSame($expectedJWS->payload->notBefore?->getTimestamp(), $jws->payload->notBefore?->getTimestamp());
+        $this->assertSame($expectedJWS->payload->audience, $jws->payload->audience);
+        $this->assertSame($expectedJWS->payload->data, $jws->payload->data);
 
-        $this->assertSame((string) $expectedJws->getSignature(), (string) $jws->getSignature());
+        $this->assertSame((string) $expectedJWS->signature, (string) $jws->signature);
     }
 
-    public function testJsonSerializeJws(): void
+    public function testInvalidJWSCompactException(): void
     {
-        $jws = JWSModel::getJws();
+        $compactJWS = 'a.b.c.d';
 
-        $jsonJws = $this->serializer->jsonSerializeJws($jws);
+        $this->expectException(InvalidJWSCompactException::class);
+        $this->expectExceptionMessage('Compact serialized JWS must contain 3 members. Invalid JWS: ' . $compactJWS);
 
-        $expectedJsonJws = json_encode([
-            'protected' => $this->serializer->base64EncodeHeader($jws->getHeader()),
-            'payload' => $this->serializer->base64EncodePayload($jws->getPayload()),
-            'signature' => $this->serializer->base64EncodeSignature($jws->getSignature()),
+        $this->jwsSerializer->compactDeserializeJWS($compactJWS);
+    }
+
+    public function testJsonSerializeJWS(): void
+    {
+        $jws = JWSModel::getJWS();
+
+        $expectedJsonJWS = json_encode([
+            'protected' => $this->jwsHeaderSerializer->base64Encode($jws->header),
+            'payload' => $this->jwsPayloadSerializer->base64Encode($jws->payload),
+            'signature' => $this->jwsSignatureSerializer->base64Encode($jws->signature),
         ]);
 
-        $this->assertSame($expectedJsonJws, $jsonJws);
+        $jsonJWS = $this->jwsSerializer->jsonSerializeJWS($jws);
+
+        $this->assertSame($expectedJsonJWS, $jsonJWS);
     }
 
-    public function testJsonSerializeJwsWithUnprotectedHeader(): void
+    public function testJsonSerializeJWSWithUnprotectedHeader(): void
     {
-        $jws = JWSModel::getJws(includeUnprotectedHeader: true);
+        $jws = JWSModel::getJWSWithUnprotectedHeader();
 
-        $jsonJws = $this->serializer->jsonSerializeJws($jws);
+        $jsonJWS = $this->jwsSerializer->jsonSerializeJWS($jws);
 
         /** @var JWSUnprotectedHeader $unprotectedHeader */
-        $unprotectedHeader = $jws->getUnprotectedHeader();
+        $unprotectedHeader = $jws->unprotectedHeader;
 
-        $expectedJsonJws = json_encode([
-            'protected' => $this->serializer->base64EncodeHeader($jws->getHeader()),
-            'payload' => $this->serializer->base64EncodePayload($jws->getPayload()),
-            'signature' => $this->serializer->base64EncodeSignature($jws->getSignature()),
-            'header' => $this->serializer->base64EncodeUnprotectedHeader($unprotectedHeader),
+        $expectedJsonJWS = json_encode([
+            'protected' => $this->jwsHeaderSerializer->base64Encode($jws->header),
+            'payload' => $this->jwsPayloadSerializer->base64Encode($jws->payload),
+            'signature' => $this->jwsSignatureSerializer->base64Encode($jws->signature),
+            'header' => $this->jwsUnprotectedHeaderSerializer->base64Encode($unprotectedHeader),
         ]);
 
-        $this->assertSame($expectedJsonJws, $jsonJws);
+        $this->assertSame($expectedJsonJWS, $jsonJWS);
     }
 
-    public function testJsonDeserializeJws(): void
+    public function testJsonDeserializeJWS(): void
     {
-        $expectedJws = JWSModel::getJws();
+        $expectedJWS = JWSModel::getJWS();
 
-        $jsonJws = $this->serializer->jsonSerializeJws($expectedJws);
+        $jsonJWS = $this->jwsSerializer->jsonSerializeJWS($expectedJWS);
 
-        $jws = $this->serializer->jsonDeserializeJws($jsonJws);
+        $jws = $this->jwsSerializer->jsonDeserializeJWS($jsonJWS);
 
-        $this->assertSame($expectedJws->getHeader()->getTokenType()->value, $jws->getHeader()->getTokenType()->value);
-        $this->assertSame($expectedJws->getHeader()->getAlgorithmType()->value, $jws->getHeader()->getAlgorithmType()->value);
+        $this->assertSame($expectedJWS->header->tokenType->value, $jws->header->tokenType->value);
+        $this->assertSame($expectedJWS->header->algorithmType->value, $jws->header->algorithmType->value);
 
-        $this->assertSame($expectedJws->getPayload()->getId(), $jws->getPayload()->getId());
-        $this->assertSame($expectedJws->getPayload()->getIssuer(), $jws->getPayload()->getIssuer());
-        $this->assertSame($expectedJws->getPayload()->getSubject(), $jws->getPayload()->getSubject());
-        $this->assertSame($expectedJws->getPayload()->getIssuedAt()->getTimestamp(), $jws->getPayload()->getIssuedAt()->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getExpirationTime()->getTimestamp(), $jws->getPayload()->getExpirationTime()->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getNotBefore()?->getTimestamp(), $jws->getPayload()->getNotBefore()?->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getAudience(), $jws->getPayload()->getAudience());
-        $this->assertSame($expectedJws->getPayload()->getData(), $jws->getPayload()->getData());
+        $this->assertSame($expectedJWS->payload->id, $jws->payload->id);
+        $this->assertSame($expectedJWS->payload->issuer, $jws->payload->issuer);
+        $this->assertSame($expectedJWS->payload->subject, $jws->payload->subject);
+        $this->assertSame($expectedJWS->payload->issuedAt->getTimestamp(), $jws->payload->issuedAt->getTimestamp());
+        $this->assertSame($expectedJWS->payload->expirationTime->getTimestamp(), $jws->payload->expirationTime->getTimestamp());
+        $this->assertSame($expectedJWS->payload->notBefore?->getTimestamp(), $jws->payload->notBefore?->getTimestamp());
+        $this->assertSame($expectedJWS->payload->audience, $jws->payload->audience);
+        $this->assertSame($expectedJWS->payload->data, $jws->payload->data);
 
-        $this->assertSame((string) $expectedJws->getSignature(), (string) $jws->getSignature());
+        $this->assertSame((string) $expectedJWS->signature, (string) $jws->signature);
     }
 
-    public function testJsonDeserializeJwsWithUnprotectedHeader(): void
+    public function testJsonDeserializeJWSWithUnprotectedHeader(): void
     {
-        $expectedJws = JWSModel::getJws(includeUnprotectedHeader: true);
+        $expectedJWS = JWSModel::getJWSWithUnprotectedHeader();
 
-        $jsonJws = $this->serializer->jsonSerializeJws($expectedJws);
+        $jsonJWS = $this->jwsSerializer->jsonSerializeJWS($expectedJWS);
 
-        $jws = $this->serializer->jsonDeserializeJws($jsonJws);
+        $jws = $this->jwsSerializer->jsonDeserializeJWS($jsonJWS);
 
-        $this->assertSame($expectedJws->getHeader()->getTokenType()->value, $jws->getHeader()->getTokenType()->value);
-        $this->assertSame($expectedJws->getHeader()->getAlgorithmType()->value, $jws->getHeader()->getAlgorithmType()->value);
+        $this->assertSame($expectedJWS->header->tokenType->value, $jws->header->tokenType->value);
+        $this->assertSame($expectedJWS->header->algorithmType->value, $jws->header->algorithmType->value);
 
-        $this->assertSame($expectedJws->getPayload()->getId(), $jws->getPayload()->getId());
-        $this->assertSame($expectedJws->getPayload()->getIssuer(), $jws->getPayload()->getIssuer());
-        $this->assertSame($expectedJws->getPayload()->getSubject(), $jws->getPayload()->getSubject());
-        $this->assertSame($expectedJws->getPayload()->getIssuedAt()->getTimestamp(), $jws->getPayload()->getIssuedAt()->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getExpirationTime()->getTimestamp(), $jws->getPayload()->getExpirationTime()->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getNotBefore()?->getTimestamp(), $jws->getPayload()->getNotBefore()?->getTimestamp());
-        $this->assertSame($expectedJws->getPayload()->getAudience(), $jws->getPayload()->getAudience());
-        $this->assertSame($expectedJws->getPayload()->getData(), $jws->getPayload()->getData());
+        $this->assertSame($expectedJWS->payload->id, $jws->payload->id);
+        $this->assertSame($expectedJWS->payload->issuer, $jws->payload->issuer);
+        $this->assertSame($expectedJWS->payload->subject, $jws->payload->subject);
+        $this->assertSame($expectedJWS->payload->issuedAt->getTimestamp(), $jws->payload->issuedAt->getTimestamp());
+        $this->assertSame($expectedJWS->payload->expirationTime->getTimestamp(), $jws->payload->expirationTime->getTimestamp());
+        $this->assertSame($expectedJWS->payload->notBefore?->getTimestamp(), $jws->payload->notBefore?->getTimestamp());
+        $this->assertSame($expectedJWS->payload->audience, $jws->payload->audience);
+        $this->assertSame($expectedJWS->payload->data, $jws->payload->data);
 
-        $this->assertSame((string) $expectedJws->getSignature(), (string) $jws->getSignature());
+        $this->assertSame((string) $expectedJWS->signature, (string) $jws->signature);
 
-        $this->assertSame($expectedJws->getUnprotectedHeader()?->getData(), $jws->getUnprotectedHeader()?->getData());
+        $this->assertSame($expectedJWS->unprotectedHeader?->data, $jws->unprotectedHeader?->data);
+    }
+
+    #[DataProvider('invalidJsonJWSProvider')]
+    public function testInvalidJWSJsonException(string $missingKey, string $jsonJWS): void
+    {
+        $this->expectException(InvalidJWSJsonException::class);
+        $this->expectExceptionMessage(sprintf('There is a missing "%s" json key in JWS: %s', $missingKey, $jsonJWS));
+
+        $this->jwsSerializer->jsonDeserializeJWS($jsonJWS);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function invalidJsonJWSProvider(): array
+    {
+        return [
+            [
+                'missingKey' => 'protected',
+                'jsonJWS' => json_encode(['protecte' => '', 'payload' => '', 'signature' => '']),
+            ],
+            [
+                'missingKey' => 'payload',
+                'jsonJWS' => json_encode(['protected' => '', 'payloa' => '', 'signature' => '']),
+            ],
+            [
+                'missingKey' => 'signature',
+                'jsonJWS' => json_encode(['protected' => '', 'payload' => '', 'signatur' => '']),
+            ],
+        ];
     }
 }

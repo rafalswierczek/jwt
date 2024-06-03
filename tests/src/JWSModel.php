@@ -33,7 +33,7 @@ abstract class JWSModel
             issuedAt: new \DateTimeImmutable(),
             expirationTime: new \DateTimeImmutable('+30 minutes'),
             notBefore: new \DateTimeImmutable('+5 minutes'),
-            audience: ['JWT verifier server 1', 'JWT verifier server 2'],
+            audience: ['Resource server 1', 'Resource server 2'],
             data: [
                 'user' => ['id' => 'a3c33869-f649-4383-87b3-5f73227c70a3'],
             ],
@@ -50,13 +50,22 @@ abstract class JWSModel
         return new JWSUnprotectedHeader(['key' => 'example value']);
     }
 
-    public static function getJws(bool $includeUnprotectedHeader = false): JWS
+    public static function getJWS(): JWS
     {
         return new JWS(
             self::getHeader(),
             self::getPayload(),
             self::getSignature(),
-            $includeUnprotectedHeader ? self::getUnprotectedHeader() : null,
+        );
+    }
+
+    public static function getJWSWithUnprotectedHeader(): JWS
+    {
+        return new JWS(
+            self::getHeader(),
+            self::getPayload(),
+            self::getSignature(),
+            self::getUnprotectedHeader(),
         );
     }
 }

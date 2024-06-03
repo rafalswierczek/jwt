@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace rafalswierczek\JWT\JWS\Model;
 
-class JWSSignature
+final readonly class JWSSignature implements \Stringable
 {
-    public function __construct(private string $signature)
+    public function __construct(public string $signature)
     {
     }
 
