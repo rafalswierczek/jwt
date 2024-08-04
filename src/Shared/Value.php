@@ -47,11 +47,4 @@ final class Value
 
         return $value;
     }
-
-    public static function fromTimestamp(mixed $timestamp): \DateTimeImmutable
-    {
-        $timestamp = self::int($timestamp);
-
-        return (new \DateTimeImmutable())->setTimestamp($timestamp);
-    }
 }
