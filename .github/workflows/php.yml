@@ -43,8 +43,8 @@ jobs:
       - name: PHP Coding Standards Fixer
         run: vendor/bin/php-cs-fixer fix --ansi --diff --dry-run
 
-      - name: Run level 8 phpstan
-        run: vendor/bin/phpstan analyse -l 8 src tests
+      - name: Run level 9 phpstan
+        run: vendor/bin/phpstan analyse -l 9 src tests
 
       - name: Test with phpunit
         run: vendor/bin/phpunit

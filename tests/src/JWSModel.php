@@ -11,6 +11,7 @@ use rafalswierczek\JWT\JWS\Model\JWS;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
 use rafalswierczek\JWT\JWS\Model\JWSSignature;
 use rafalswierczek\JWT\JWS\Model\JWSUnprotectedHeader;
+use rafalswierczek\JWT\JWS\Model\RefreshToken;
 
 abstract class JWSModel
 {
@@ -43,6 +44,11 @@ abstract class JWSModel
     public static function getSignature(): JWSSignature
     {
         return new JWSSignature('hash');
+    }
+
+    public static function getRefreshToken(AlgorithmType $algorithmType = AlgorithmType::HS256): RefreshToken
+    {
+        return new RefreshToken($algorithmType, new \DateTimeImmutable(), 'signature');
     }
 
     public static function getUnprotectedHeader(): JWSUnprotectedHeader

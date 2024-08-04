@@ -7,8 +7,8 @@ namespace rafalswierczek\JWT\Test;
 use PHPUnit\Framework\TestCase;
 use rafalswierczek\JWT\JWS\Algorithm\Provider\AlgorithmProvider;
 use rafalswierczek\JWT\JWS\Exception\CannotMatchAudienceException;
-use rafalswierczek\JWT\JWS\Exception\CompromisedSignatureException;
-use rafalswierczek\JWT\JWS\Exception\TokenHasExpiredException;
+use rafalswierczek\JWT\JWS\Exception\JWSCompromisedSignatureException;
+use rafalswierczek\JWT\JWS\Exception\JWSHasExpiredException;
 use rafalswierczek\JWT\JWS\Issuer\JWSIssuer;
 use rafalswierczek\JWT\JWS\Issuer\JWSIssuerInterface;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
@@ -19,7 +19,6 @@ use rafalswierczek\JWT\JWS\Verifier\JWSVerifierInterface;
 use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializer;
 use rafalswierczek\JWT\JWS\Serializer\JWSPayloadSerializer;
 use rafalswierczek\JWT\JWS\Serializer\JWSSerializer;
-use rafalswierczek\JWT\JWS\Serializer\JWSSerializerInterface;
 use rafalswierczek\JWT\Shared\Base64;
 
 class JWSVerifierTest extends TestCase
@@ -28,22 +27,17 @@ class JWSVerifierTest extends TestCase
 
     private JWSIssuerInterface $issuer;
 
-    private JWSSerializerInterface $serializer;
-
     protected function setUp(): void
     {
         $headerSerializer = new JWSHeaderSerializer();
         $payloadSerializer = new JWSPayloadSerializer();
-        $signatureSerializer = new JWSSignatureSerializer();
-        $unprotectedHeaderSerializer = new JWSUnprotectedHeaderSerializer();
-        $serializer = new JWSSerializer($headerSerializer, $payloadSerializer, $signatureSerializer, $unprotectedHeaderSerializer);
+        $serializer = new JWSSerializer($headerSerializer, $payloadSerializer, new JWSSignatureSerializer(), new JWSUnprotectedHeaderSerializer());
         $algorithmProvider = new AlgorithmProvider($headerSerializer, $payloadSerializer);
         $verifier = new JWSVerifier($algorithmProvider, $serializer);
         $issuer = new JWSIssuer($algorithmProvider, $serializer);
 
         $this->issuer = $issuer;
         $this->verifier = $verifier;
-        $this->serializer = $serializer;
     }
 
     public function testVerifySuccess(): void
@@ -53,7 +47,7 @@ class JWSVerifierTest extends TestCase
         $payload = JWSModel::getPayload();
         $secret = JWSModel::getSecret();
 
-        $jws = $this->issuer->getJWS(JWSModel::getHeader(), $payload, $secret);
+        $jws = $this->issuer->generateJWS(JWSModel::getHeader(), $payload, $secret);
 
         /** @var array<string> $audience */
         $audience = $payload->audience;
@@ -66,20 +60,18 @@ class JWSVerifierTest extends TestCase
         $secret = JWSModel::getSecret();
         $payload = JWSModel::getPayload();
 
-        $compactJWS = $this->issuer->getCompactJWS(JWSModel::getHeader(), $payload, $secret);
+        $compactJWS = $this->issuer->generateCompactJWS(JWSModel::getHeader(), $payload, $secret);
         $compactJWSHacked = $this->changeExpirationTime($compactJWS);
-
-        $jws = $this->serializer->compactDeserializeJWS($compactJWS);
-        $jwsHacked = $this->serializer->compactDeserializeJWS($compactJWSHacked);
 
         /** @var array<string> $audience */
         $audience = $payload->audience;
 
-        $this->verifier->verify($jws, $secret, $audience[0]);
+        $this->verifier->verifyCompactJWS($compactJWS, $secret, $audience[0]);
 
-        $this->expectException(CompromisedSignatureException::class);
+        $this->expectException(JWSCompromisedSignatureException::class);
+        $this->expectExceptionMessage("Signature of following JWS is compromised: $compactJWSHacked");
 
-        $this->verifier->verify($jwsHacked, $secret, $audience[0]);
+        $this->verifier->verifyCompactJWS($compactJWSHacked, $secret, $audience[0]);
     }
 
     public function testTokenHasExpired(): void
@@ -93,9 +85,9 @@ class JWSVerifierTest extends TestCase
             expirationTime: new \DateTimeImmutable('-30 minutes'),
         );
 
-        $jws = $this->issuer->getJWS(JWSModel::getHeader(), $payload, $secret);
+        $jws = $this->issuer->generateJWS(JWSModel::getHeader(), $payload, $secret);
 
-        $this->expectException(TokenHasExpiredException::class);
+        $this->expectException(JWSHasExpiredException::class);
         $this->expectExceptionMessage("JWS with id {$payload->id} has expired");
 
         $this->verifier->verify($jws, $secret, '');
@@ -112,19 +104,20 @@ class JWSVerifierTest extends TestCase
             expirationTime: new \DateTimeImmutable('+15 minutes'),
             audience: ['Resource server 2', 'Resource server 3'],
         );
-        $validAudience = 'Resource server 1';
+        $validAudienceElement = 'Resource server 1';
 
-        $jws = $this->issuer->getJWS(JWSModel::getHeader(), $payload, $secret);
+        $jws = $this->issuer->generateJWS(JWSModel::getHeader(), $payload, $secret);
 
         $this->expectException(CannotMatchAudienceException::class);
 
-        $this->verifier->verify($jws, $secret, $validAudience);
+        $this->verifier->verify($jws, $secret, $validAudienceElement);
     }
 
     private function changeExpirationTime(string $compactJWS): string
     {
         $compactJWSArray = explode('.', $compactJWS);
 
+        /** @var array<string, mixed> $payloadArray */
         $payloadArray = json_decode(Base64::urlDecode($compactJWSArray[1]), true);
 
         $payloadArray['exp'] = (new \DateTime('+99 days'))->getTimestamp();

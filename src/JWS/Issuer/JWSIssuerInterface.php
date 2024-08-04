@@ -11,9 +11,9 @@ use rafalswierczek\JWT\JWS\Model\JWSUnprotectedHeader;
 
 interface JWSIssuerInterface
 {
-    public function getCompactJWS(JWSHeader $header, JWSPayload $payload, string $secret): string;
+    public function generateCompactJWS(JWSHeader $header, JWSPayload $payload, string $secret): string;
 
-    public function getJsonJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): string;
+    public function generateJsonJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): string;
 
-    public function getJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): JWS;
+    public function generateJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): JWS;
 }

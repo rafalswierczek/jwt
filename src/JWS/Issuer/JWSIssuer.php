@@ -20,31 +20,31 @@ final class JWSIssuer implements JWSIssuerInterface
     ) {
     }
 
-    public function getCompactJWS(JWSHeader $header, JWSPayload $payload, string $secret): string
+    public function generateCompactJWS(JWSHeader $header, JWSPayload $payload, string $secret): string
     {
-        $jws = $this->getJWS($header, $payload, $secret);
+        $jws = $this->generateJWS($header, $payload, $secret);
 
         return $this->serializer->compactSerializeJWS($jws);
     }
 
-    public function getJsonJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): string
+    public function generateJsonJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): string
     {
-        $jws = $this->getJWS($header, $payload, $secret, $unprotectedHeader);
+        $jws = $this->generateJWS($header, $payload, $secret, $unprotectedHeader);
 
         return $this->serializer->jsonSerializeJWS($jws);
     }
 
-    public function getJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): JWS
+    public function generateJWS(JWSHeader $header, JWSPayload $payload, string $secret, ?JWSUnprotectedHeader $unprotectedHeader = null): JWS
     {
-        $signature = $this->getSignature($header, $payload, $secret);
+        $signature = $this->generateSignature($header, $payload, $secret);
 
         return new JWS($header, $payload, $signature, $unprotectedHeader);
     }
 
-    private function getSignature(JWSHeader $header, JWSPayload $payload, string $secret): JWSSignature
+    private function generateSignature(JWSHeader $header, JWSPayload $payload, string $secret): JWSSignature
     {
-        $algorithmInstance = $this->algorithmProvider->getAlgorithm($header->algorithmType);
+        $algorithm = $this->algorithmProvider->getAlgorithm($header->algorithmType);
 
-        return $algorithmInstance->createSignature($header, $payload, $secret);
+        return $algorithm->createTokenSignature($header, $payload, $secret);
     }
 }

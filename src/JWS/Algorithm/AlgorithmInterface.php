@@ -10,5 +10,7 @@ use rafalswierczek\JWT\JWS\Model\JWSSignature;
 
 interface AlgorithmInterface
 {
-    public function createSignature(JWSHeader $header, JWSPayload $payload, string $secret): JWSSignature;
+    public function createTokenSignature(JWSHeader $header, JWSPayload $payload, string $secret): JWSSignature;
+
+    public function createRefreshTokenSignature(\DateTimeImmutable $expiredAt, string $secret): string;
 }

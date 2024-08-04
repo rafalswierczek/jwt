@@ -8,6 +8,7 @@ use rafalswierczek\JWT\JWS\Exception\InvalidJWSPayloadException;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
 use rafalswierczek\JWT\Shared\Base64;
 use rafalswierczek\JWT\Shared\Exception\InvalidBase64InputException;
+use rafalswierczek\JWT\Shared\Value;
 
 final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
 {
@@ -41,18 +42,18 @@ final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
      */
     public function jsonDeserialize(string $jsonPayload): JWSPayload
     {
-        /** @var array<string, mixed> $payloadArray */
+        /** @var array<mixed> $payloadArray */
         $payloadArray = json_decode($jsonPayload, true) ?? throw new InvalidJWSPayloadException('Invalid payload format');
 
         return new JWSPayload(
-            id: $payloadArray['jti'] ?? throw new InvalidJWSPayloadException('Cannot find "jti" in json payload'),
-            issuer: $payloadArray['iss'] ?? throw new InvalidJWSPayloadException('Cannot find "iss" in json payload'),
-            subject: $payloadArray['sub'] ?? throw new InvalidJWSPayloadException('Cannot find "sub" in json payload'),
-            issuedAt: $this->getDateTime($payloadArray, 'iat'),
-            expirationTime: $this->getDateTime($payloadArray, 'exp'),
-            notBefore: $this->getDateTimeOptional($payloadArray, 'nbf'),
-            audience: $payloadArray['aud'] ?? null,
-            data: $payloadArray['data'] ?? null,
+            id: Value::string($payloadArray['jti'] ?? throw new InvalidJWSPayloadException('Cannot find "jti" in json payload')),
+            issuer: Value::string($payloadArray['iss'] ?? throw new InvalidJWSPayloadException('Cannot find "iss" in json payload')),
+            subject: Value::string($payloadArray['sub'] ?? throw new InvalidJWSPayloadException('Cannot find "sub" in json payload')),
+            issuedAt: (new \DateTimeImmutable())->setTimestamp(Value::int($payloadArray['iat'] ?? throw new InvalidJWSPayloadException('Cannot find "iat" in json payload'))),
+            expirationTime: (new \DateTimeImmutable())->setTimestamp(Value::int($payloadArray['exp'] ?? throw new InvalidJWSPayloadException('Cannot find "exp" in json payload'))),
+            notBefore: isset($payloadArray['nbf']) ? (new \DateTimeImmutable())->setTimestamp(Value::int($payloadArray['nbf'])) : null,
+            audience: isset($payloadArray['aud']) ? Value::arrayOfString($payloadArray['aud']) : null,
+            data: isset($payloadArray['data']) ? Value::arrayOfMixed($payloadArray['data']) : null,
         );
     }
 
@@ -68,39 +69,5 @@ final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
     public function base64Decode(string $base64UrlPayload): JWSPayload
     {
         return $this->jsonDeserialize(Base64::UrlDecode($base64UrlPayload));
-    }
-
-    /**
-     * @param array<string, string|int> $payloadArray
-     *
-     * @throws InvalidJWSPayloadException
-     */
-    private function getDateTime(array $payloadArray, string $headerKey): \DateTimeImmutable
-    {
-        $payloadTimestamp = $payloadArray[$headerKey] ?? throw new InvalidJWSPayloadException(sprintf('Cannot find "%s" in json payload', $headerKey));
-
-        if (false === is_int($payloadTimestamp)) {
-            throw new InvalidJWSPayloadException(sprintf('Invalid value of "%s" in json payload', $headerKey));
-        }
-
-        return (new \DateTimeImmutable())->setTimestamp((int) $payloadTimestamp);
-    }
-
-    /**
-     * @param array<string, string|int> $payloadArray
-     *
-     * @throws InvalidJWSPayloadException
-     */
-    private function getDateTimeOptional(array $payloadArray, string $headerKey): ?\DateTimeImmutable
-    {
-        if (false === isset($payloadArray[$headerKey])) {
-            return null;
-        }
-
-        if (false === is_int($payloadArray[$headerKey])) {
-            throw new InvalidJWSPayloadException(sprintf('Invalid value of "%s" in json payload', $headerKey));
-        }
-
-        return (new \DateTimeImmutable())->setTimestamp($payloadArray[$headerKey]);
     }
 }

@@ -77,7 +77,7 @@ class JWSSerializerTest extends TestCase
         $compactJWS = 'a.b.c.d';
 
         $this->expectException(InvalidJWSCompactException::class);
-        $this->expectExceptionMessage('Compact serialized JWS must contain 3 members. Invalid JWS: ' . $compactJWS);
+        $this->expectExceptionMessage('Compact serialized JWS must contain 3 elements. Invalid JWS: ' . $compactJWS);
 
         $this->jwsSerializer->compactDeserializeJWS($compactJWS);
     }

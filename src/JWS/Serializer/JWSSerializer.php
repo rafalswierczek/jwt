@@ -32,16 +32,16 @@ final class JWSSerializer implements JWSSerializerInterface
 
     /**
      * @throws InvalidJWSCompactException
-     * @throws InvalidBase64InputException
      * @throws InvalidJWSHeaderException
      * @throws InvalidJWSPayloadException
+     * @throws InvalidBase64InputException
      */
     public function compactDeserializeJWS(string $compactJWS): JWS
     {
         $base64UrlParts = explode('.', $compactJWS);
 
         if (3 !== count($base64UrlParts)) {
-            throw new InvalidJWSCompactException('Compact serialized JWS must contain 3 members. Invalid JWS: ' . $compactJWS);
+            throw new InvalidJWSCompactException('Compact serialized JWS must contain 3 elements. Invalid JWS: ' . $compactJWS);
         }
 
         $header = $this->jwsHeaderSerializer->base64Decode($base64UrlParts[0]);
@@ -68,9 +68,9 @@ final class JWSSerializer implements JWSSerializerInterface
 
     /**
      * @throws InvalidJWSJsonException
-     * @throws InvalidBase64InputException
      * @throws InvalidJWSHeaderException
      * @throws InvalidJWSPayloadException
+     * @throws InvalidBase64InputException
      */
     public function jsonDeserializeJWS(string $jsonJWS): JWS
     {

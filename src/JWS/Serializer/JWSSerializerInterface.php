@@ -17,9 +17,9 @@ interface JWSSerializerInterface
 
     /**
      * @throws InvalidJWSCompactException
-     * @throws InvalidBase64InputException
      * @throws InvalidJWSHeaderException
      * @throws InvalidJWSPayloadException
+     * @throws InvalidBase64InputException
      */
     public function compactDeserializeJWS(string $compactJWS): JWS;
 
@@ -27,9 +27,9 @@ interface JWSSerializerInterface
 
     /**
      * @throws InvalidJWSJsonException
-     * @throws InvalidBase64InputException
      * @throws InvalidJWSHeaderException
      * @throws InvalidJWSPayloadException
+     * @throws InvalidBase64InputException
      */
     public function jsonDeserializeJWS(string $jsonJWS): JWS;
 }

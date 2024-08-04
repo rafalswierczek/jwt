@@ -8,12 +8,12 @@ use rafalswierczek\JWT\JWS\Model\JWSHeader;
 use rafalswierczek\JWT\JWS\Model\JWSPayload;
 use rafalswierczek\JWT\JWS\Model\JWSSignature;
 
-final class HS256 extends AbstractAlgorithm
+final class HS512 extends AbstractAlgorithm
 {
     public function createTokenSignature(JWSHeader $header, JWSPayload $payload, string $secret): JWSSignature
     {
         $signature = hash_hmac(
-            'sha256',
+            'sha512',
             $this->getJWSInput($header, $payload),
             $secret
         );
@@ -24,9 +24,9 @@ final class HS256 extends AbstractAlgorithm
     public function createRefreshTokenSignature(\DateTimeImmutable $expiredAt, string $secret): string
     {
         return hash_hmac(
-            'sha256',
+            'sha512',
             $this->getRefreshTokenInput($expiredAt),
-            $secret,
+            $secret
         );
     }
 }

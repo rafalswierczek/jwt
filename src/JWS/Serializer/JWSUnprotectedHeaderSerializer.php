@@ -20,6 +20,9 @@ final class JWSUnprotectedHeaderSerializer implements JWSUnprotectedHeaderSerial
      */
     public function base64Decode(string $base64UrlUnprotectedHeader): JWSUnprotectedHeader
     {
-        return new JWSUnprotectedHeader(json_decode(Base64::urlDecode($base64UrlUnprotectedHeader), true));
+        /** @var array<string, string> $data */
+        $data = json_decode(Base64::urlDecode($base64UrlUnprotectedHeader), true);
+
+        return new JWSUnprotectedHeader($data);
     }
 }
