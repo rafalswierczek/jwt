@@ -45,7 +45,7 @@ class JWSIssuerTest extends TestCase
         $algorithm = $this->algorithmProvider->getAlgorithm($algorithmType);
         $header = JWSModel::getHeader($algorithmType);
         $payload = JWSModel::getPayload();
-        $secret = JWSModel::getSecret();
+        $secret = JWSModel::getSecret($algorithmType);
         $signature = $algorithm->createTokenSignature($header, $payload, $secret);
 
         $expectedCompactJWS = $this->serializer->compactSerializeJWS(new JWS($header, $payload, $signature));
@@ -61,7 +61,7 @@ class JWSIssuerTest extends TestCase
         $algorithm = $this->algorithmProvider->getAlgorithm($algorithmType);
         $header = JWSModel::getHeader($algorithmType);
         $payload = JWSModel::getPayload();
-        $secret = JWSModel::getSecret();
+        $secret = JWSModel::getSecret($algorithmType);
         $unprotectedHeader = JWSModel::getUnprotectedHeader();
         $signature = $algorithm->createTokenSignature($header, $payload, $secret);
 
@@ -78,7 +78,7 @@ class JWSIssuerTest extends TestCase
         $algorithm = $this->algorithmProvider->getAlgorithm($algorithmType);
         $header = JWSModel::getHeader($algorithmType);
         $payload = JWSModel::getPayload();
-        $secret = JWSModel::getSecret();
+        $secret = JWSModel::getSecret($algorithmType);
         $signature = $algorithm->createTokenSignature($header, $payload, $secret);
 
         $expectedJWS = new JWS($header, $payload, $signature);

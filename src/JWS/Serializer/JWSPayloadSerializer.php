@@ -52,7 +52,7 @@ final class JWSPayloadSerializer implements JWSPayloadSerializerInterface
             issuedAt: (new \DateTimeImmutable())->setTimestamp(Value::int($payloadArray['iat'] ?? throw new InvalidJWSPayloadException('Cannot find "iat" in json payload'))),
             expirationTime: (new \DateTimeImmutable())->setTimestamp(Value::int($payloadArray['exp'] ?? throw new InvalidJWSPayloadException('Cannot find "exp" in json payload'))),
             notBefore: isset($payloadArray['nbf']) ? (new \DateTimeImmutable())->setTimestamp(Value::int($payloadArray['nbf'])) : null,
-            audience: isset($payloadArray['aud']) ? Value::arrayOfString($payloadArray['aud']) : null,
+            audience: isset($payloadArray['aud']) ? Value::listOfString($payloadArray['aud']) : null,
             data: isset($payloadArray['data']) ? Value::arrayOfMixed($payloadArray['data']) : null,
         );
     }

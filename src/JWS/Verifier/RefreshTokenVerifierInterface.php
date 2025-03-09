@@ -14,6 +14,8 @@ use rafalswierczek\JWT\Shared\Exception\InvalidBase64InputException;
 interface RefreshTokenVerifierInterface
 {
     /**
+     * @param string $compactRefreshToken Compact refresh token with format: base64AlgorithmName.base64ExpireTimestamp.base64RandomBinary.base64Signature
+     *
      * @throws RefreshTokenCompromisedSignatureException
      * @throws RefreshTokenHasExpiredException
      * @throws InvalidRefreshTokenCompactException

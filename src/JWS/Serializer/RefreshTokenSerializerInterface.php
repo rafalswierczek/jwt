@@ -14,6 +14,8 @@ interface RefreshTokenSerializerInterface
     public function compactSerializeRefreshToken(RefreshToken $refreshToken): string;
 
     /**
+     * @param string $compactRefreshToken Compact refresh token with format: base64AlgorithmName.base64ExpireTimestamp.base64RandomBinary.base64Signature
+     *
      * @throws InvalidBase64InputException
      * @throws InvalidRefreshTokenCompactException
      * @throws InvalidRefreshTokenException

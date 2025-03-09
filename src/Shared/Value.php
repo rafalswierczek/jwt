@@ -25,15 +25,24 @@ final class Value
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
-    public static function arrayOfString(mixed $value): array
+    public static function listOfString(mixed $value): array
     {
         if (false === is_array($value)) {
             throw new \TypeError();
         }
 
-        return $value;
+        foreach ($value as $element) {
+            if (false === is_string($element)) {
+                throw new \TypeError();
+            }
+        }
+
+        /** @var array<mixed, string> $list */
+        $list = $value;
+
+        return array_values($list);
     }
 
     /**

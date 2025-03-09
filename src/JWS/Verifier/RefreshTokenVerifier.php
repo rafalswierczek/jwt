@@ -52,7 +52,7 @@ final class RefreshTokenVerifier implements RefreshTokenVerifierInterface
     {
         $algorithm = $this->algorithmProvider->getAlgorithm($refreshToken->algorithmType);
 
-        $computedSignature = $algorithm->createRefreshTokenSignature($refreshToken->expiredAt, $secret);
+        $computedSignature = $algorithm->createRefreshTokenSignature($refreshToken->expiredAt, $refreshToken->randomBinary, $secret);
 
         if ($refreshToken->signature !== $computedSignature) {
             $compactRefreshToken = $this->serializer->compactSerializeRefreshToken($refreshToken);

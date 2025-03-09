@@ -44,10 +44,11 @@ class JWSVerifierTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
+        $header = JWSModel::getHeader();
         $payload = JWSModel::getPayload();
-        $secret = JWSModel::getSecret();
+        $secret = JWSModel::getSecret($header->algorithmType);
 
-        $jws = $this->issuer->generateJWS(JWSModel::getHeader(), $payload, $secret);
+        $jws = $this->issuer->generateJWS($header, $payload, $secret);
 
         /** @var array<string> $audience */
         $audience = $payload->audience;
@@ -57,10 +58,11 @@ class JWSVerifierTest extends TestCase
 
     public function testCompromisedSignature(): void
     {
-        $secret = JWSModel::getSecret();
+        $header = JWSModel::getHeader();
+        $secret = JWSModel::getSecret($header->algorithmType);
         $payload = JWSModel::getPayload();
 
-        $compactJWS = $this->issuer->generateCompactJWS(JWSModel::getHeader(), $payload, $secret);
+        $compactJWS = $this->issuer->generateCompactJWS($header, $payload, $secret);
         $compactJWSHacked = $this->changeExpirationTime($compactJWS);
 
         /** @var array<string> $audience */
@@ -76,7 +78,8 @@ class JWSVerifierTest extends TestCase
 
     public function testTokenHasExpired(): void
     {
-        $secret = JWSModel::getSecret();
+        $header = JWSModel::getHeader();
+        $secret = JWSModel::getSecret($header->algorithmType);
         $payload = new JWSPayload(
             id: '0789d6cb-a511-4e23-a702-c1f5d3f02bf7',
             issuer: 'auth server',
@@ -85,7 +88,7 @@ class JWSVerifierTest extends TestCase
             expirationTime: new \DateTimeImmutable('-30 minutes'),
         );
 
-        $jws = $this->issuer->generateJWS(JWSModel::getHeader(), $payload, $secret);
+        $jws = $this->issuer->generateJWS($header, $payload, $secret);
 
         $this->expectException(JWSHasExpiredException::class);
         $this->expectExceptionMessage("JWS with id {$payload->id} has expired");
@@ -95,7 +98,8 @@ class JWSVerifierTest extends TestCase
 
     public function testCannotMatchAudience(): void
     {
-        $secret = JWSModel::getSecret();
+        $header = JWSModel::getHeader();
+        $secret = JWSModel::getSecret($header->algorithmType);
         $payload = new JWSPayload(
             id: '0789d6cb-a511-4e23-a702-c1f5d3f02bf7',
             issuer: 'auth server',
@@ -106,7 +110,7 @@ class JWSVerifierTest extends TestCase
         );
         $validAudienceElement = 'Resource server 1';
 
-        $jws = $this->issuer->generateJWS(JWSModel::getHeader(), $payload, $secret);
+        $jws = $this->issuer->generateJWS($header, $payload, $secret);
 
         $this->expectException(CannotMatchAudienceException::class);
 

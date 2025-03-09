@@ -22,9 +22,10 @@ class RefreshTokenSerializerTest extends TestCase
         $refreshToken = JWSModel::getRefreshToken();
 
         $expectedCompactRefreshToken = sprintf(
-            '%s.%s.%s',
+            '%s.%s.%s.%s',
             Base64::urlEncode($refreshToken->algorithmType->name),
             Base64::urlEncode((string) $refreshToken->expiredAt->getTimestamp()),
+            Base64::urlEncode($refreshToken->randomBinary),
             Base64::urlEncode($refreshToken->signature),
         );
 
@@ -43,6 +44,7 @@ class RefreshTokenSerializerTest extends TestCase
 
         self::assertSame($expectedRefreshToken->algorithmType, $actualRefreshToken->algorithmType);
         self::assertSame($expectedRefreshToken->expiredAt->getTimestamp(), $actualRefreshToken->expiredAt->getTimestamp());
+        self::assertSame($expectedRefreshToken->randomBinary, $actualRefreshToken->randomBinary);
         self::assertSame($expectedRefreshToken->signature, $actualRefreshToken->signature);
     }
 }

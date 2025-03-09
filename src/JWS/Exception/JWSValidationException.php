@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace rafalswierczek\JWT\JWS\Exception;
 
 /**
- * Abstract exception for 400 response.
+ * Abstract exception for HTTP 422 response.
  */
 abstract class JWSValidationException extends \Exception
 {

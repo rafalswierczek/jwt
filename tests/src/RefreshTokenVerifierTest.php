@@ -10,8 +10,8 @@ use rafalswierczek\JWT\JWS\Algorithm\Provider\AlgorithmProvider;
 use rafalswierczek\JWT\JWS\Enum\Header\AlgorithmType;
 use rafalswierczek\JWT\JWS\Exception\RefreshTokenCompromisedSignatureException;
 use rafalswierczek\JWT\JWS\Exception\RefreshTokenHasExpiredException;
-use rafalswierczek\JWT\JWS\RefreshToken\RefreshTokenProvider;
-use rafalswierczek\JWT\JWS\RefreshToken\RefreshTokenProviderInterface;
+use rafalswierczek\JWT\JWS\RefreshToken\RefreshTokenIssuer;
+use rafalswierczek\JWT\JWS\RefreshToken\RefreshTokenIssuerInterface;
 use rafalswierczek\JWT\JWS\Serializer\JWSHeaderSerializer;
 use rafalswierczek\JWT\JWS\Serializer\JWSPayloadSerializer;
 use rafalswierczek\JWT\JWS\Serializer\RefreshTokenSerializer;
@@ -23,13 +23,13 @@ final class RefreshTokenVerifierTest extends TestCase
 {
     private RefreshTokenVerifierInterface $verifier;
 
-    private RefreshTokenProviderInterface $refreshTokenProvider;
+    private RefreshTokenIssuerInterface $refreshTokenProvider;
 
     protected function setUp(): void
     {
         $algorithmProvider = new AlgorithmProvider(new JWSHeaderSerializer(), new JWSPayloadSerializer());
         $serializer = new RefreshTokenSerializer();
-        $refreshTokenProvider = new RefreshTokenProvider($algorithmProvider, $serializer);
+        $refreshTokenProvider = new RefreshTokenIssuer($algorithmProvider, $serializer);
         $verifier = new RefreshTokenVerifier($serializer, $algorithmProvider);
 
         $this->verifier = $verifier;
@@ -37,39 +37,72 @@ final class RefreshTokenVerifierTest extends TestCase
     }
 
     #[DataProvider('algorithmProvider')]
-    public function testVerifySuccess(AlgorithmType $algorithmType): void
+    public function testVerifySuccessForObject(AlgorithmType $algorithmType): void
     {
         $this->expectNotToPerformAssertions();
 
-        $refreshToken = $this->refreshTokenProvider->generateRefreshToken($algorithmType, new \DateTimeImmutable('+5 minutes'), 'secret');
+        $randomBinary = random_bytes(16);
+        $secret = JWSModel::getSecret($algorithmType);
+        $refreshToken = $this->refreshTokenProvider->generateRefreshToken($algorithmType, new \DateTimeImmutable('+5 minutes'), $randomBinary, $secret);
 
-        $this->verifier->verify($refreshToken, 'secret');
+        $this->verifier->verify($refreshToken, $secret);
     }
 
     #[DataProvider('algorithmProvider')]
-    public function testCompromisedSignature(AlgorithmType $algorithmType): void
+    public function testVerifySuccessForCompact(AlgorithmType $algorithmType): void
     {
-        $compactRefreshToken = $this->refreshTokenProvider->generateCompactRefreshToken($algorithmType, new \DateTimeImmutable('+5 minutes'), 'secret');
+        $this->expectNotToPerformAssertions();
 
+        $randomBinary = random_bytes(16);
+        $secret = JWSModel::getSecret($algorithmType);
+        $refreshToken = $this->refreshTokenProvider->generateCompactRefreshToken($algorithmType, new \DateTimeImmutable('+5 minutes'), $randomBinary, $secret);
+
+        $this->verifier->verifyCompactRefreshToken($refreshToken, $secret);
+    }
+
+    #[DataProvider('algorithmProvider')]
+    public function testCompromisedExpirationDate(AlgorithmType $algorithmType): void
+    {
+        $randomBinary = random_bytes(16);
+        $secret = JWSModel::getSecret($algorithmType);
+        $compactRefreshToken = $this->refreshTokenProvider->generateCompactRefreshToken($algorithmType, new \DateTimeImmutable('+5 minutes'), $randomBinary, $secret);
         $compactRefreshTokenHacked = $this->changeExpirationTime($compactRefreshToken);
 
-        $this->verifier->verifyCompactRefreshToken($compactRefreshToken, 'secret');
+        $this->verifier->verifyCompactRefreshToken($compactRefreshToken, $secret);
 
         $this->expectException(RefreshTokenCompromisedSignatureException::class);
         $this->expectExceptionMessage("Signature of following refresh token is compromised: $compactRefreshTokenHacked");
 
-        $this->verifier->verifyCompactRefreshToken($compactRefreshTokenHacked, 'secret');
+        $this->verifier->verifyCompactRefreshToken($compactRefreshTokenHacked, $secret);
+    }
+
+    #[DataProvider('algorithmProvider')]
+    public function testCompromisedRandomBinary(AlgorithmType $algorithmType): void
+    {
+        $randomBinary = random_bytes(16);
+        $secret = JWSModel::getSecret($algorithmType);
+        $compactRefreshToken = $this->refreshTokenProvider->generateCompactRefreshToken($algorithmType, new \DateTimeImmutable('+5 minutes'), $randomBinary, $secret);
+        $compactRefreshTokenHacked = $this->changeRandomBinary($compactRefreshToken);
+
+        $this->verifier->verifyCompactRefreshToken($compactRefreshToken, $secret);
+
+        $this->expectException(RefreshTokenCompromisedSignatureException::class);
+        $this->expectExceptionMessage("Signature of following refresh token is compromised: $compactRefreshTokenHacked");
+
+        $this->verifier->verifyCompactRefreshToken($compactRefreshTokenHacked, $secret);
     }
 
     #[DataProvider('algorithmProvider')]
     public function testTokenHasExpired(AlgorithmType $algorithmType): void
     {
-        $compactRefreshToken = $this->refreshTokenProvider->generateCompactRefreshToken($algorithmType, new \DateTimeImmutable('-30 minutes'), 'secret');
+        $randomBinary = random_bytes(16);
+        $secret = JWSModel::getSecret($algorithmType);
+        $compactRefreshToken = $this->refreshTokenProvider->generateCompactRefreshToken($algorithmType, new \DateTimeImmutable('-30 minutes'), $randomBinary, $secret);
 
         $this->expectException(RefreshTokenHasExpiredException::class);
         $this->expectExceptionMessage("This refresh token has expired: $compactRefreshToken");
 
-        $this->verifier->verifyCompactRefreshToken($compactRefreshToken, 'secret');
+        $this->verifier->verifyCompactRefreshToken($compactRefreshToken, $secret);
     }
 
     private function changeExpirationTime(string $compactRefreshToken): string
@@ -79,6 +112,17 @@ final class RefreshTokenVerifierTest extends TestCase
         $newExpiredAt = (new \DateTime('+99 days'))->getTimestamp();
 
         $compactRefreshTokenArray[1] = Base64::urlEncode((string) $newExpiredAt);
+
+        return implode('.', $compactRefreshTokenArray);
+    }
+
+    private function changeRandomBinary(string $compactRefreshToken): string
+    {
+        $compactRefreshTokenArray = explode('.', $compactRefreshToken);
+
+        $newRandomBinary = random_bytes(16);
+
+        $compactRefreshTokenArray[2] = Base64::urlEncode($newRandomBinary);
 
         return implode('.', $compactRefreshTokenArray);
     }

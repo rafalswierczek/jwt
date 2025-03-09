@@ -15,9 +15,12 @@ use rafalswierczek\JWT\JWS\Model\RefreshToken;
 
 abstract class JWSModel
 {
-    public static function getSecret(): string
+    public static function getSecret(AlgorithmType $algorithmType = AlgorithmType::HS256): string
     {
-        return 'secret';
+        return match ($algorithmType) {
+            AlgorithmType::HS256 => random_bytes(64),
+            AlgorithmType::HS512 => random_bytes(128),
+        };
     }
 
     public static function getHeader(AlgorithmType $algorithmType = AlgorithmType::HS256): JWSHeader
@@ -48,7 +51,7 @@ abstract class JWSModel
 
     public static function getRefreshToken(AlgorithmType $algorithmType = AlgorithmType::HS256): RefreshToken
     {
-        return new RefreshToken($algorithmType, new \DateTimeImmutable(), 'signature');
+        return new RefreshToken($algorithmType, new \DateTimeImmutable(), random_bytes(16), 'signature');
     }
 
     public static function getUnprotectedHeader(): JWSUnprotectedHeader
